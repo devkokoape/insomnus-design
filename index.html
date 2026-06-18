@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>INSOMNUS • Dark Pixel Roguelike</title>
+  <!-- Tab icon -->
+  <link rel="icon" type="image/png" sizes="any" href="assets/brand/logo.png">
+  <link rel="icon" type="image/png" sizes="64x64" href="assets/brand/logo.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="assets/brand/logo.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/brand/logo.png">
+  <link rel="shortcut icon" href="assets/brand/logo.png">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=VT323&amp;family=Inter:wght@400;600&amp;display=swap');
+    
+    @font-face {
+      font-family: 'Alagard';
+      src: url('assets/fonts/alagard.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+    
+    :root {
+      --bg: #0c0a08;
+      --stone: #14120f;
+      --accent: #c02627;
+      --gold: #c5a46d;
+      --text: #c9c9c5;
+    }
+    
+    html, body {
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    body, html {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', system_ui, sans-serif;
+      /* Custom cursor: cursor.png = normal, cursor-click.png = on click/hover */
+      cursor: url('assets/cursors/cursor.png') 16 16, crosshair !important;
+    }
+
+    /* Active/click cursor state */
+    a, button, .cursor-pointer, details, summary, select, input, textarea, [onclick], label {
+      cursor: url('assets/cursors/cursor-click.png') 16 16, pointer !important;
+    }
+
+    /* Smooth section jumps */
+    html {
+      scroll-behavior: smooth;
+    }
+
+    /* Offset for sticky header on section jumps */
+    section[id] {
+      scroll-margin-top: 70px;
+    }
+
+    /* Ensure no text anywhere on the landing is selectable */
+    h1, h2, h3, h4, h5, p, span, a, button, label, li, summary, details,
+    .alagard-font, .pixel-font, .text-animate, .text-animate-red {
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+    
+    .pixel-font {
+      font-family: 'VT323', monospace;
+      letter-spacing: 1px;
+    }
+    
+    .alagard-font {
+      font-family: 'Alagard', 'VT323', monospace;
+      letter-spacing: 1px;
+    }
+    
+    .dungeon-frame {
+      position: relative;
+      border: 3px solid #3a2f2a;
+      background: #12100e;
+    }
+    
+    .dungeon-frame::before, .dungeon-frame::after {
+      content: '';
+      position: absolute;
+      width: 28px;
+      height: 28px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      z-index: 2;
+      pointer-events: none;
+    }
+    
+    .dungeon-frame::before {
+      top: -3px;
+      left: -3px;
+      background-image: url('assets/frames/corner-top-left.webp');
+    }
+    .dungeon-frame::after {
+      top: -3px;
+      right: -3px;
+      background-image: url('assets/frames/corner-top-right.webp');
+    }
+    
+    .dungeon-frame .bottom-corners::before, .dungeon-frame .bottom-corners::after {
+      content: '';
+      position: absolute;
+      width: 28px;
+      height: 28px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      z-index: 2;
+      pointer-events: none;
+    }
+    
+    .dungeon-frame .bottom-corners::before {
+      bottom: -3px;
+      left: -3px;
+      background-image: url('assets/frames/corner-bottom-left.webp');
+    }
+    .dungeon-frame .bottom-corners::after {
+      bottom: -3px;
+      right: -3px;
+      background-image: url('assets/frames/corner-bottom-right.webp');
+    }
+    
+    .flame {
+      animation: flame-flicker 1.1s infinite alternate ease-in-out;
+    }
+    
+    @keyframes flame-flicker {
+      0% { transform: scaleY(0.95) translateY(1px); opacity: 0.9; }
+      100% { transform: scaleY(1.05) translateY(-1px); opacity: 1; }
+    }
+    
+    .section-header {
+      font-family: 'VT323', monospace;
+      font-size: 2.5rem;
+      letter-spacing: 2px;
+      line-height: 1;
+    }
+    
+    .immersive-bg {
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+    }
+    
+    .lore-text {
+      font-family: 'VT323', monospace;
+      font-size: 1.05rem;
+      line-height: 1.4;
+    }
+    
+    .game-card {
+      transition: all 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+    
+    .game-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.4);
+      border-color: #c02627;
+    }
+    
+    .nav-link {
+      padding: 4px 10px;
+      border: 1px solid #3a2f2a;
+      transition: all 0.15s ease;
+      font-family: 'VT323', monospace;
+      letter-spacing: 1px;
+    }
+    
+    .nav-link:hover {
+      border-color: #c02627;
+      color: white;
+      background: rgba(192, 38, 39, 0.08);
+      transform: translateY(-1px);
+    }
+    
+    .nav-link.text-\[\#c02627\] {
+      border-color: #c02627;
+      color: #c02627;
+      background: rgba(192, 38, 39, 0.12);
+      box-shadow: 0 0 0 1px rgba(192, 38, 39, 0.2);
+    }
+    
+    .top-tier-container {
+      max-width: 100%;
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+    
+    .cinematic {
+      box-shadow: inset 0 0 120px rgba(0,0,0,0.8);
+    }
+    
+    .dungeon-side {
+      background: linear-gradient(to right, #0c0a08, transparent);
+    }
+    
+    /* Enhanced interactive header styles */
+    .nav-link {
+      transition: color 0.2s;
+    }
+    
+    #header.scrolled {
+      box-shadow: 0 2px 20px rgba(0,0,0,0.6);
+    }
+    
+    /* Play Beta Buttons - Dungeon / Pixel style */
+    .play-beta-btn {
+      font-family: 'VT323', monospace;
+      letter-spacing: 2px;
+      position: relative;
+      transition: all 0.15s ease;
+    }
+    
+    .play-beta-btn:hover {
+      background-color: #9f1239;
+      border-color: #c02627;
+      box-shadow: 0 0 0 4px rgba(192, 38, 39, 0.25);
+      transform: translateY(-1px);
+    }
+    
+    .play-beta-btn:active {
+      transform: scale(0.98) translateY(0);
+      box-shadow: 0 0 0 2px rgba(192, 38, 39, 0.2);
+    }
+
+    /* Hero PLAY BETA - more prominent */
+    header .play-beta-btn {
+      font-size: 1.1rem;
+      letter-spacing: 3px;
+      box-shadow: 0 4px 0 #000;
+    }
+    
+    header .play-beta-btn:hover {
+      box-shadow: 0 0 0 6px rgba(192, 38, 39, 0.3), 0 4px 0 #000;
+      transform: translateY(-2px);
+    }
+
+    .text-animate .word,
+    .text-animate-red .word {
+      transition: color 0.15s ease;
+    }
+
+    .text-animate .word:hover { color: #c02627; }
+    .text-animate-red .word:hover { color: white; }
+
+    /* Trials section GIF: B&W by default, full color on hover */
+    .trials-gif {
+      filter: grayscale(1) contrast(1.1) brightness(0.95);
+      transition: filter 0.35s ease;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+
+    .dungeon-frame:hover .trials-gif {
+      filter: none;
+    }
+
+    /* Slightly lift the dark overlays on hover so original colors pop more */
+    .trials-overlay {
+      transition: opacity 0.35s ease;
+    }
+
+    .dungeon-frame:hover .trials-overlay {
+      opacity: 0.55;
+    }
+
+    /* Horde section GIF (horde.gif): B&W by default, full color on hover */
+    .horde-gif {
+      filter: grayscale(1) contrast(1.1) brightness(0.95);
+      transition: filter 0.35s ease;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+
+    .horde-visual:hover .horde-gif {
+      filter: none;
+    }
+
+    /* Slightly fade the overlay on hover so original colors pop */
+    .horde-overlay {
+      transition: opacity 0.35s ease;
+    }
+
+    .horde-visual:hover .horde-overlay {
+      opacity: 0.5;
+    }
+
+    /* Scary goosebump dread animation for horde visual background */
+    .horde-dread {
+      background: 
+        radial-gradient(circle at 35% 25%, rgba(192, 38, 39, 0.18) 0%, transparent 55%),
+        radial-gradient(circle at 70% 75%, rgba(192, 38, 39, 0.09) 0%, transparent 50%);
+      animation: horde-dread-pulse 11s ease-in-out infinite;
+      mix-blend-mode: screen;
+      z-index: 2;
+    }
+
+    @keyframes horde-dread-pulse {
+      0%, 100% { opacity: 0.55; }
+      48% { opacity: 0.9; }
+      52% { opacity: 1; }
+    }
+
+    /* ===== ENHANCED FAQ SECTION ===== */
+    details.faq-item {
+      position: relative;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    details.faq-item:hover {
+      border-color: #c02627;
+    }
+    
+    details.faq-item[open] {
+      border-color: #c02627;
+      box-shadow: 0 0 0 1px rgba(192, 38, 39, 0.15);
+    }
+    
+    details.faq-item[open] .faq-question {
+      border-bottom: 1px solid #c02627;
+      background: rgba(192, 38, 39, 0.03);
+    }
+    
+    /* Subtle left accent for design - positioned inside the frame */
+    details.faq-item::before {
+      content: '';
+      position: absolute;
+      left: 3px;
+      top: 3px;
+      bottom: 3px;
+      width: 2px;
+      background: #c02627;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      z-index: 1;
+      pointer-events: none;
+    }
+    
+    details.faq-item:hover::before,
+    details.faq-item[open]::before {
+      opacity: 0.7;
+    }
+    
+    .faq-question {
+      font-family: 'VT323', monospace;
+      letter-spacing: 0.5px;
+      background: none;
+      border: none;
+      outline: none;
+      width: 100%;
+      text-align: left;
+      list-style: none; /* remove default marker */
+    }
+    
+    .faq-question::-webkit-details-marker {
+      display: none;
+    }
+    
+    .faq-question:hover span {
+      color: #c02627;
+    }
+    
+    .faq-icon {
+      line-height: 1;
+      display: inline-block;
+      transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+    
+    details.faq-item[open] .faq-icon {
+      color: #c02627;
+      transform: rotate(45deg);
+    }
+    
+    details.faq-item[open] .flame {
+      filter: brightness(1.4) saturate(1.3);
+    }
+    
+    details.faq-item[open] .faq-flame {
+      opacity: 1;
+    }
+    
+    .faq-answer {
+      border-top: 1px solid transparent;
+      transition: max-height 0.45s cubic-bezier(0.23, 1, 0.32, 1),
+                  opacity 0.3s ease-out,
+                  transform 0.45s cubic-bezier(0.23, 1, 0.32, 1);
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    
+    details.faq-item[open] .faq-answer {
+      border-top-color: #c02627;
+      opacity: 1;
+      transform: translateY(0);
+      max-height: 300px;
+    }
+    
+    .faq-content {
+      padding-top: 1rem;
+      padding-bottom: 1.5rem;
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+    
+    .faq-answer p {
+      margin-top: 0;
+    }
+
+    /* Prevent downloading / saving assets */
+    img, video {
+      -webkit-user-drag: none;
+      -khtml-user-drag: none;
+      -moz-user-drag: none;
+      -o-user-drag: none;
+      user-drag: none;
+      pointer-events: auto;
+    }
+
+    .no-download {
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    /* Slow breathing horror on the dungeon frame itself */
+    .dungeon-frame.horde-visual {
+      box-shadow: 
+        0 0 0 1px #3a2f2a,
+        inset 0 0 40px rgba(0, 0, 0, 0.7),
+        0 0 30px rgba(192, 38, 39, 0.06);
+      animation: horde-frame-breath 16s ease-in-out infinite;
+    }
+
+    @keyframes horde-frame-breath {
+      0%, 100% { 
+        box-shadow: 
+          0 0 0 1px #3a2f2a,
+          inset 0 0 40px rgba(0, 0, 0, 0.7),
+          0 0 30px rgba(192, 38, 39, 0.06);
+      }
+      50% { 
+        box-shadow: 
+          0 0 0 1px #4a3f3a,
+          inset 0 0 60px rgba(0, 0, 0, 0.85),
+          0 0 55px rgba(192, 38, 39, 0.22);
+      }
+    }
+
+    /* Re-enable text selection ONLY for actual form controls */
+    select,
+    input,
+    textarea {
+      -webkit-user-select: text !important;
+      -moz-user-select: text !important;
+      -ms-user-select: text !important;
+      user-select: text !important;
+    }
+
+    /* === RED SKULL THEMED VERTICAL SCROLLBAR === */
+    ::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #12100e;
+      border: 1px solid #3a2f2a;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #c02627;
+      border: 1px solid #3a2f2a;
+      border-radius: 2px;
+      box-shadow: inset 0 0 4px rgba(0,0,0,0.6);
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #e11d48;
+      box-shadow: inset 0 0 6px rgba(0,0,0,0.4), 0 0 6px rgba(192, 38, 39, 0.5);
+    }
+
+    ::-webkit-scrollbar-thumb:active {
+      background: #9f1239;
+    }
+
+    /* Firefox support */
+    html {
+      scrollbar-width: thin;
+      scrollbar-color: #c02627 #12100e;
+    }
+  </style>
+</head>
+<body class="antialiased overflow-x-hidden">
+  <!-- HEADER - Stylish Dungeon Nav -->
+  <nav id="header" class="sticky top-0 z-50 bg-[#0c0a08]/95 backdrop-blur border-b border-[#3a2f2a] transition-all duration-300">
+    <div class="max-w-screen-2xl mx-auto px-8 h-16 flex items-center justify-between relative">
+      
+      <!-- Logo -->
+      <div class="flex items-center gap-x-3 cursor-pointer" onclick="window.scrollTo({top:0, behavior:'smooth'})">
+        <div class="relative">
+          <img src="assets/brand/logo.png" alt="Insomnus" class="h-8 pixel" onerror="this.outerHTML='<div class=\'pixel-font text-2xl text-[#c02627]\'>INSOMNUS</div>'">
+        </div>
+        <span class="pixel-font text-xl tracking-[4px] text-[#c5a46d]">INSOMNUS</span>
+      </div>
+      
+      <!-- Center Nav -->
+      <div class="hidden md:flex items-center gap-x-2 text-sm tracking-widest">
+        <a href="#trials" class="nav-link text-[#c9c9c5] hover:text-white">THE TRIALS</a>
+        <a href="#master" class="nav-link text-[#c9c9c5] hover:text-white">MASTER THE DUNGEON</a>
+        <a href="#horde" class="nav-link text-[#c9c9c5] hover:text-white">THE HORDE</a>
+        <a href="#ecosystem" class="nav-link text-[#c9c9c5] hover:text-white">ECOSYSTEM</a>
+        <a href="#faq" class="nav-link text-[#c9c9c5] hover:text-white">INSCRIPTIONS</a>
+      </div>
+      
+      <!-- Right: Only Play Beta - Highly Interactive -->
+      <div class="flex items-center">
+        <a href="https://insomnus.xyz/login" target="_blank" 
+           class="play-beta-btn inline-flex items-center justify-center px-8 py-2.5 bg-[#c02627] hover:bg-[#9f1239] border-2 border-[#3a2f2a] hover:border-[#c02627] text-sm tracking-[2px] active:scale-[0.985]">
+          PLAY BETA
+        </a>
+        
+        <!-- Mobile Menu Toggle -->
+        <button id="mobile-menu-btn" class="md:hidden ml-3 px-3 py-2 border border-[#3a2f2a] text-xs tracking-widest" onclick="toggleMobileMenu()">
+          MENU
+        </button>
+      </div>
+    </div>
+    
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden md:hidden border-t border-[#3a2f2a] bg-[#0c0a08]">
+      <div class="px-8 py-6 flex flex-col gap-y-2 text-sm tracking-widest">
+        <a href="#trials" class="block py-1.5 px-3 border border-[#3a2f2a] hover:border-[#c02627] hover:bg-[#14120f] transition-colors" onclick="toggleMobileMenu()">THE TRIALS</a>
+        <a href="#master" class="block py-1.5 px-3 border border-[#3a2f2a] hover:border-[#c02627] hover:bg-[#14120f] transition-colors" onclick="toggleMobileMenu()">MASTER THE DUNGEON</a>
+        <a href="#horde" class="block py-1.5 px-3 border border-[#3a2f2a] hover:border-[#c02627] hover:bg-[#14120f] transition-colors" onclick="toggleMobileMenu()">THE HORDE</a>
+        <a href="#ecosystem" class="block py-1.5 px-3 border border-[#3a2f2a] hover:border-[#c02627] hover:bg-[#14120f] transition-colors" onclick="toggleMobileMenu()">ECOSYSTEM</a>
+        <a href="#faq" class="block py-1.5 px-3 border border-[#3a2f2a] hover:border-[#c02627] hover:bg-[#14120f] transition-colors" onclick="toggleMobileMenu()">INSCRIPTIONS</a>
+        
+        <a href="https://insomnus.xyz/login" target="_blank" 
+           class="play-beta-btn mt-2 block text-center py-2.5 text-sm tracking-[2px] border border-[#3a2f2a] hover:bg-[#9f1239] hover:border-[#c02627]">
+          PLAY BETA
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO / TOP SECTION - High quality crisp GIF -->
+  <header class="relative min-h-[92vh] flex items-center justify-center overflow-hidden border-b border-[#3a2f2a] bg-[#0c0a08]">
+    <!-- The GIF as full-bleed background for the whole top section -->
+    <img src="assets/gifs/hero-monster.gif" 
+         class="absolute inset-0 w-full h-full object-cover pixel"
+         style="image-rendering: pixelated; image-rendering: crisp-edges; image-rendering: -webkit-optimize-contrast; filter: grayscale(0.88) contrast(1.12) brightness(1.03);"
+         alt="Dark pixel art dungeon scene">
+
+    <!-- Dark depth overlays (kept for text readability and atmosphere) -->
+    <div class="absolute inset-0 bg-gradient-to-b from-[#0c0a08]/75 via-transparent to-[#0c0a08]/65 z-10"></div>
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_15%,rgba(12,10,8,0.3)_60%)] z-10"></div>
+    <div class="absolute inset-0 bg-gradient-to-r from-[#0c0a08]/40 via-transparent to-[#0c0a08]/40 z-10"></div>
+
+    <!-- Subtle frame corners -->
+    <div class="absolute top-3 left-3 w-7 h-7 z-20 opacity-60" style="background-image:url('assets/frames/corner-top-left.webp'); background-size:contain; background-repeat:no-repeat;"></div>
+    <div class="absolute top-3 right-3 w-7 h-7 z-20 opacity-60" style="background-image:url('assets/frames/corner-top-right.webp'); background-size:contain; background-repeat:no-repeat;"></div>
+
+    <!-- Main text content (positioned to avoid central monster eye) -->
+    <div class="absolute z-20 max-w-[900px] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 px-4 sm:px-8 text-center">
+      <!-- Title with Alagard -->
+      <h1 class="alagard-font text-[56px] sm:text-[72px] md:text-[100px] lg:text-[130px] leading-[0.75] tracking-[-3px] sm:tracking-[-4px] text-[#c02627] mb-1 font-bold" style="text-shadow: 0 4px 0 #000, 2px 2px 0 #000;">
+        INSOMNUS
+      </h1>
+
+      <!-- Description -->
+      <p class="alagard-font max-w-[800px] mx-auto text-sm sm:text-base md:text-lg leading-tight text-[#e2e2e2] mb-5 sm:mb-6" style="text-shadow: 0 2px 0 #000;">
+        Play, earn, and evolve in endless web 3.0 dungeon.
+      </p>
+
+      <!-- Button -->
+      <a href="https://insomnus.xyz/login" target="_blank"
+         class="play-beta-btn alagard-font inline-flex items-center justify-center px-8 py-3 sm:px-10 sm:py-3.5 md:px-14 md:py-4 bg-[#c02627] hover:bg-[#9f1239] text-base sm:text-lg md:text-xl tracking-[1px] border-2 border-[#3a2f2a] hover:border-[#c02627] text-white active:scale-[0.985]">
+        PLAY BETA
+      </a>
+
+      <!-- Stats -->
+      <div class="mt-3 text-sm tracking-[2px] text-[#d1d5db]" style="text-shadow: 0 1px 0 #000;">
+        193K+ SLEEPLESS • 1M+ RUNS
+      </div>
+    </div>
+
+    <!-- Badge at bottom-left (small, doesn't disturb the central eye) -->
+    <div class="absolute bottom-6 left-6 z-30">
+      <span class="alagard-font text-[9px] md:text-[10px] tracking-[1.5px] text-[#d1d5db]" style="text-shadow: 0 1px 2px rgba(0,0,0,0.9);">
+        CLOSED BETA • SOMNIA &amp; MEGAETH
+      </span>
+    </div>
+    
+    <div class="absolute bottom-5 left-1/2 -translate-x-1/2 text-[9px] tracking-[2px] text-[#888] flex items-center gap-1 z-20">
+      SCROLL TO DESCEND <span class="text-sm inline-block animate-bounce" style="animation-duration: 1.5s;">↓</span>
+    </div>
+  </header>
+
+  <!-- THE TRIALS section -->
+  <section id="trials" class="border-b border-[#3a2f2a] py-20 bg-[#080604]">
+    <div class="max-w-screen-2xl mx-auto px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-x-8 items-center">
+        
+        <!-- Left: Text content -->
+        <div class="lg:col-span-5 group">
+          <div class="max-w-3xl">
+            <div class="text-xs tracking-[4px] text-[#c02627] mb-3 text-animate-red">
+              <span class="word">THE</span>
+              <span class="word">DOOR</span>
+              <span class="word">TO</span>
+              <span class="word">ENDLESS</span>
+              <span class="word">TRIALS</span>
+            </div>
+            <h2 class="pixel-font text-5xl md:text-6xl leading-none tracking-[-2px] mb-6 text-white text-animate">
+              <span class="word">FACE</span>
+              <span class="word">THE</span>
+              <span class="word">UNKNOWN.</span><br>
+              <span class="word">OUTLAST</span>
+              <span class="word">YOUR</span>
+              <span class="word">PAST</span>
+              <span class="word">SELF.</span>
+            </h2>
+            
+            <div class="prose prose-invert max-w-2xl text-lg text-[#a8a29e] mb-6 text-animate">
+              <span class="word">Every</span> <span class="word">play</span> <span class="word">brings</span> <span class="word">you</span> <span class="word">closer</span> <span class="word">to</span> <span class="word">becoming</span> <span class="word">a</span> <span class="word">legend.</span><br>
+              <span class="word">Each</span> <span class="word">fall</span> <span class="word">teaches</span> <span class="word">you.</span> <span class="word">Each</span> <span class="word">victory</span> <span class="word">fuels</span> <span class="word">your</span> <span class="word">ascent.</span>
+            </div>
+
+            <div class="text-sm text-[#888] mb-6 text-animate">
+              <span class="word">In</span> <span class="word">this</span> <span class="word">realm,</span> <span class="word">community</span> <span class="word">is</span> <span class="word">king.</span> <span class="word">The</span> <span class="word">dungeon</span> <span class="word">watches,</span> <span class="word">rewarding</span> <span class="word">those</span> <span class="word">who</span> <span class="word">endure.</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Right: GIF as main visual with effects -->
+        <div class="lg:col-span-7 relative">
+          <div class="dungeon-frame overflow-hidden">
+            <img src="assets/gifs/trials.gif" 
+                 class="w-full h-auto pixel trials-gif" 
+                 alt="Insomnus landing poster GIF - dark pixel dungeon scene">
+            <!-- Dark depth overlay effect -->
+            <div class="absolute inset-0 bg-gradient-to-b from-[#0c0a08]/30 via-[#0c0a08]/10 to-[#0c0a08]/40 pointer-events-none trials-overlay"></div>
+            <!-- Subtle vignette for depth -->
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_40%,rgba(0,0,0,0.4)_80%)] pointer-events-none trials-overlay"></div>
+            <!-- Text on left side of the GIF content -->
+            <div class="absolute bottom-4 left-4 text-xs text-[#888] tracking-widest">ENDLESS TRIALS AWAIT</div>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <!-- MASTER THE DUNGEON - Dense Full-Width Grid -->
+  <section id="master" class="py-20 border-b border-[#3a2f2a] bg-[#0c0a08]">
+    <div class="max-w-screen-2xl mx-auto px-8">
+      <div class="flex items-end justify-between mb-10">
+        <div>
+          <div class="text-xs tracking-[3px] text-[#c02627]">BEYOND THE DOOR</div>
+          <h2 class="pixel-font text-5xl tracking-[-1px] text-animate">
+            <span class="word">MASTER</span> <span class="word">THE</span> <span class="word">DUNGEON</span>
+          </h2>
+        </div>
+        <div class="hidden md:block text-right text-sm text-[#666]">
+          FREE-TO-PLAY • PLAY-TO-EARN<br>
+          WEB BROWSER • PC / MOBILE
+        </div>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        <!-- The Final Score -->
+        <div class="dungeon-frame p-8 game-card group">
+          <div class="bottom-corners"></div>
+          <div class="text-xs text-[#c02627] tracking-widest mb-2">THE FINAL SCORE</div>
+          <div class="pixel-font text-3xl mb-4 leading-none text-animate">
+            <span class="word">YOUR</span> <span class="word">GOAL</span> <span class="word">IS</span> <span class="word">SIMPLE</span>
+          </div>
+          <div class="text-sm text-[#a8a29e] leading-relaxed mb-6">
+            Beat your personal best Kills, Score, and Survival Time with every play session. 
+            Your run ends, but your growth never does.
+          </div>
+          <div class="text-xs text-[#c5a46d]">DIE TRYING. RETURN STRONGER.</div>
+        </div>
+        
+        <!-- Community & Points -->
+        <div class="dungeon-frame p-8 game-card group">
+          <div class="bottom-corners"></div>
+          <div class="text-xs text-[#c02627] tracking-widest mb-2">COMMUNITY &amp; POINTS</div>
+          <div class="pixel-font text-3xl mb-4 leading-none text-animate">
+            <span class="word">EVERY</span> <span class="word">ACTION</span> <span class="word">DRIVES</span> <span class="word">GROWTH</span>
+          </div>
+          <div class="text-sm text-[#a8a29e] leading-relaxed mb-6">
+            Points are rewarded for community verification, inviting new players, 
+            completing daily objectives, and achieving milestones.
+          </div>
+          <div class="text-xs text-[#c5a46d]">ACTIVE PLAYERS PROGRESS EVEN OUTSIDE THE DUNGEON.</div>
+        </div>
+        
+        <!-- Unpredictable Threats -->
+        <div class="dungeon-frame p-8 game-card group">
+          <div class="bottom-corners"></div>
+          <div class="text-xs text-[#c02627] tracking-widest mb-2">UNPREDICTABLE THREATS</div>
+          <div class="pixel-font text-3xl mb-4 leading-none text-animate">
+            <span class="word">FACE</span> <span class="word">AN</span> <span class="word">EVER-CHANGING</span> <span class="word">HORDE</span>
+          </div>
+          <div class="text-sm text-[#a8a29e] leading-relaxed mb-6">
+            Each monster type presents distinct challenges — armor, speed, magical abilities, 
+            or cunning tricks. Master their weaknesses.
+          </div>
+          <div class="text-xs text-[#c5a46d]">PUSH FURTHER INTO THE ABYSS.</div>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <!-- THE HORDE - Interactive with Side Fill -->
+  <section id="horde" class="py-20 border-b border-[#3a2f2a]">
+    <div class="max-w-screen-2xl mx-auto px-8">
+      <div class="grid lg:grid-cols-12 gap-12 items-start">
+        
+        <!-- Left Side Visual Fill -->
+        <div class="lg:col-span-5 hidden lg:block">
+          <div class="sticky top-20">
+            <div class="dungeon-frame horde-visual">
+              <div class="relative overflow-hidden">
+                <img src="assets/gifs/horde.gif" 
+                     class="pixel w-full horde-gif" 
+                     alt="Insomnus horde character scene">
+                <!-- subtle depth overlay -->
+                <div class="absolute inset-0 bg-gradient-to-b from-[#0c0a08]/20 via-transparent to-[#0c0a08]/30 pointer-events-none horde-overlay"></div>
+                <!-- scary dread background layer -->
+                <div class="absolute inset-0 pointer-events-none horde-dread"></div>
+              </div>
+              <div class="bottom-corners"></div>
+            </div>
+            <div class="mt-4 text-xs text-[#666] tracking-widest">EVER-CHANGING DUNGEON DWELLERS</div>
+          </div>
+        </div>
+        
+        <div class="lg:col-span-7">
+          <div class="text-xs tracking-[3px] text-[#c02627] mb-2">THE HORDE AWAITS</div>
+          <h3 class="pixel-font text-5xl mb-8 leading-none text-animate">
+            <span class="word">UNPREDICTABLE</span> <span class="word">THREATS</span>
+          </h3>
+          
+          <div class="space-y-8 text-lg">
+            <div class="flex gap-6">
+              <div class="w-8 h-8 mt-1 flex-shrink-0">
+                <img src="assets/frames/flame-top.webp" class="flame w-8 pixel" alt="">
+              </div>
+              <div>
+                <div class="font-semibold text-animate">
+                  <span class="word">Master</span> <span class="word">their</span> <span class="word">weaknesses</span>
+                </div>
+                <div class="text-[#888] text-base mt-1">Armor, speed, magical abilities, or cunning tricks. Maximize your combo potential.</div>
+              </div>
+            </div>
+            
+            <div class="flex gap-6">
+              <div class="w-8 h-8 mt-1 flex-shrink-0">
+                <img src="assets/frames/flame-top.webp" class="flame w-8 pixel" alt="">
+              </div>
+              <div>
+                <div class="font-semibold text-animate">
+                  <span class="word">Endless</span> <span class="word">waves</span> <span class="word">of</span> <span class="word">demonic</span> <span class="word">creatures</span>
+                </div>
+                <div class="text-[#888] text-base mt-1">Navigate hellish nightmare realms. Every run presents new horrors.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-6 text-sm text-[#a8a29e] leading-relaxed">
+            The horde is relentless. Enemies spawn in waves and test your spacing, pathing and crowd control. Combat is fully automatic — survival depends on movement and reading threat shapes (lines, cones, zones).
+            <a href="https://docs.insomnus.xyz/companions-and-enemies/bestiary-overview" target="_blank" class="text-[#c02627] hover:underline ml-1">Full bestiary on docs →</a>
+          </div>
+          
+          <a href="https://docs.insomnus.xyz/companions-and-enemies/bestiary-overview" target="_blank" 
+             class="mt-10 inline-block px-6 py-2 border border-[#c02627] text-sm hover:bg-[#c02627] hover:text-white transition">
+            EXPLORE THE BESTIARY →
+          </a>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <!-- ECOSYSTEM SUPPORTERS -->
+  <section id="ecosystem" class="py-20 border-b border-[#3a2f2a]">
+    <div class="max-w-screen-2xl mx-auto px-8">
+      
+      <div class="mb-10 text-center">
+        <div class="text-xs tracking-[4px] text-[#c02627]">THE ECOSYSTEM</div>
+        <div class="pixel-font text-5xl md:text-6xl leading-none tracking-[-2px]">SUPPORTERS</div>
+        <p class="mt-3 max-w-lg mx-auto text-[#888]">Insomnus is part of these powerful ecosystems powering the next generation of on-chain gaming.</p>
+      </div>
+
+      <!-- 4 individual creative blocks, each with its own picture at the top + dark gradient -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        
+        <!-- Somnia -->
+        <div class="dungeon-frame overflow-hidden game-card group">
+          <div class="bottom-corners"></div>
+          <div class="relative">
+            <img src="assets/partners/somnia.jpg" class="w-full h-40 object-cover" alt="Somnia Network">
+            <!-- transparent dark effect from bottom to top -->
+            <div class="absolute inset-0 bg-gradient-to-t from-[#0c0a08] via-[#0c0a08]/75 to-transparent"></div>
+          </div>
+          <div class="p-6">
+            <div class="pixel-font text-2xl mb-1">SOMNIA NETWORK</div>
+            <div class="text-xs text-[#c5a46d] tracking-[2px] mb-3">HIGH-PERFORMANCE L1</div>
+            <div class="text-sm text-[#a8a29e]">The high-performance blockchain foundation enabling seamless, scalable gameplay.</div>
+          </div>
+        </div>
+        
+        <!-- FlipSuite -->
+        <div class="dungeon-frame overflow-hidden game-card group">
+          <div class="bottom-corners"></div>
+          <div class="relative">
+            <img src="assets/partners/flipsuite.jpg" class="w-full h-40 object-cover" alt="FlipSuite">
+            <!-- transparent dark effect from bottom to top -->
+            <div class="absolute inset-0 bg-gradient-to-t from-[#0c0a08] via-[#0c0a08]/75 to-transparent"></div>
+          </div>
+          <div class="p-6">
+            <div class="pixel-font text-2xl mb-1">FLIPSUITE</div>
+            <div class="text-xs text-[#c5a46d] tracking-[2px] mb-3">ECOSYSTEM INFRASTRUCTURE</div>
+            <div class="text-sm text-[#a8a29e]">Key infrastructure supporting immersive on-chain gaming experiences.</div>
+          </div>
+        </div>
+        
+        <!-- MegaETH -->
+        <div class="dungeon-frame overflow-hidden game-card group">
+          <div class="bottom-corners"></div>
+          <div class="relative">
+            <img src="assets/partners/megaeth.jpg" class="w-full h-40 object-cover" alt="MegaETH Ecosystem">
+            <!-- transparent dark effect from bottom to top -->
+            <div class="absolute inset-0 bg-gradient-to-t from-[#0c0a08] via-[#0c0a08]/75 to-transparent"></div>
+          </div>
+          <div class="p-6">
+            <div class="pixel-font text-2xl mb-1">MEGAETH ECOSYSTEM</div>
+            <div class="text-xs text-[#c5a46d] tracking-[2px] mb-3">REAL-TIME EXECUTION</div>
+            <div class="text-sm text-[#a8a29e]">Bringing true real-time blockchain performance to dynamic game worlds.</div>
+          </div>
+        </div>
+        
+        <!-- X1 -->
+        <div class="dungeon-frame overflow-hidden game-card group">
+          <div class="bottom-corners"></div>
+          <div class="relative">
+            <img src="assets/partners/x1-ecochain.jpg" class="w-full h-40 object-cover" alt="X1 ECOCHAIN">
+            <!-- transparent dark effect from bottom to top -->
+            <div class="absolute inset-0 bg-gradient-to-t from-[#0c0a08] via-[#0c0a08]/75 to-transparent"></div>
+          </div>
+          <div class="p-6">
+            <div class="pixel-font text-2xl mb-1">X1 ECOCHAIN</div>
+            <div class="text-xs text-[#c5a46d] tracking-[2px] mb-3">SCALABLE GAMING LAYER</div>
+            <div class="text-sm text-[#a8a29e]">Empowering massive multiplayer experiences within the ecosystem.</div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq" class="py-20">
+    <div class="max-w-screen-2xl mx-auto px-8">
+      <div class="mb-10 flex items-end justify-between">
+        <div>
+          <div class="text-xs tracking-[3px] text-[#c02627]">INSCRIPTIONS</div>
+          <div class="pixel-font text-5xl">FREQUENTLY ASKED</div>
+        </div>
+        <div class="hidden md:block text-xs text-[#666] tracking-widest">CLICK TO REVEAL</div>
+      </div>
+      
+      <div class="max-w-4xl mx-auto space-y-3" id="faq-accordion">
+        
+        <!-- FAQ Item 1 -->
+        <details class="dungeon-frame faq-item group">
+          <div class="bottom-corners"></div>
+          <summary class="faq-question w-full flex items-center justify-between px-6 py-5 text-left hover:bg-[#14120f] transition-colors cursor-pointer list-none">
+            <span class="pixel-font text-lg tracking-wide">What is my goal in this game?</span>
+            <span class="flex items-center gap-x-2">
+              <img src="assets/frames/flame-top.webp" class="flame w-4 h-4 opacity-0 transition-all duration-300 faq-flame" alt="">
+              <span class="faq-icon text-2xl text-[#c02627] transition-transform duration-300">+</span>
+            </span>
+          </summary>
+          <div class="faq-answer">
+            <div class="faq-content">
+              Survive longer than your personal best to gather resources (XP/Gold) that permanently upgrade your future runs, while your NFTs personalize and enhance the experience.
+            </div>
+          </div>
+        </details>
+        
+        <!-- FAQ Item 2 -->
+        <details class="dungeon-frame faq-item group">
+          <div class="bottom-corners"></div>
+          <summary class="faq-question w-full flex items-center justify-between px-6 py-5 text-left hover:bg-[#14120f] transition-colors cursor-pointer list-none">
+            <span class="pixel-font text-lg tracking-wide">What resets after each session?</span>
+            <span class="flex items-center gap-x-2">
+              <img src="assets/frames/flame-top.webp" class="flame w-4 h-4 opacity-0 transition-all duration-300 faq-flame" alt="">
+              <span class="faq-icon text-2xl text-[#c02627] transition-transform duration-300">+</span>
+            </span>
+          </summary>
+          <div class="faq-answer">
+            <div class="faq-content">
+              Your character's in-session Level and all randomly selected elemental skills reset to zero. This ensures that every run is a unique challenge.
+            </div>
+          </div>
+        </details>
+        
+        <!-- FAQ Item 3 -->
+        <details class="dungeon-frame faq-item group">
+          <div class="bottom-corners"></div>
+          <summary class="faq-question w-full flex items-center justify-between px-6 py-5 text-left hover:bg-[#14120f] transition-colors cursor-pointer list-none">
+            <span class="pixel-font text-lg tracking-wide">How do my NFTs affect gameplay?</span>
+            <span class="flex items-center gap-x-2">
+              <img src="assets/frames/flame-top.webp" class="flame w-4 h-4 opacity-0 transition-all duration-300 faq-flame" alt="">
+              <span class="faq-icon text-2xl text-[#c02627] transition-transform duration-300">+</span>
+            </span>
+          </summary>
+          <div class="faq-answer">
+            <div class="faq-content">
+              NFTs personalize your character and may unlock unique progression tracks or in-game boosts.
+            </div>
+          </div>
+        </details>
+        
+        <!-- FAQ Item 4 -->
+        <details class="dungeon-frame faq-item group">
+          <div class="bottom-corners"></div>
+          <summary class="faq-question w-full flex items-center justify-between px-6 py-5 text-left hover:bg-[#14120f] transition-colors cursor-pointer list-none">
+            <span class="pixel-font text-lg tracking-wide">What is the Points system?</span>
+            <span class="flex items-center gap-x-2">
+              <img src="assets/frames/flame-top.webp" class="flame w-4 h-4 opacity-0 transition-all duration-300 faq-flame" alt="">
+              <span class="faq-icon text-2xl text-[#c02627] transition-transform duration-300">+</span>
+            </span>
+          </summary>
+          <div class="faq-answer">
+            <div class="faq-content">
+              Points are a critical on-platform reward for engagement. Earn them by verifying accounts, inviting others, and completing daily tasks.
+            </div>
+          </div>
+        </details>
+        
+        <!-- New FAQ Item 5 -->
+        <details class="dungeon-frame faq-item group">
+          <div class="bottom-corners"></div>
+          <summary class="faq-question w-full flex items-center justify-between px-6 py-5 text-left hover:bg-[#14120f] transition-colors cursor-pointer list-none">
+            <span class="pixel-font text-lg tracking-wide">Is the game free to play?</span>
+            <span class="flex items-center gap-x-2">
+              <img src="assets/frames/flame-top.webp" class="flame w-4 h-4 opacity-0 transition-all duration-300 faq-flame" alt="">
+              <span class="faq-icon text-2xl text-[#c02627] transition-transform duration-300">+</span>
+            </span>
+          </summary>
+          <div class="faq-answer">
+            <div class="faq-content">
+              Yes. Insomnus is free-to-play. Connect your wallet and begin immediately. No purchase required to enter the dungeon.
+            </div>
+          </div>
+        </details>
+        
+        <!-- New FAQ Item 6 -->
+        <details class="dungeon-frame faq-item group">
+          <div class="bottom-corners"></div>
+          <summary class="faq-question w-full flex items-center justify-between px-6 py-5 text-left hover:bg-[#14120f] transition-colors cursor-pointer list-none">
+            <span class="pixel-font text-lg tracking-wide">What is permadeath?</span>
+            <span class="flex items-center gap-x-2">
+              <img src="assets/frames/flame-top.webp" class="flame w-4 h-4 opacity-0 transition-all duration-300 faq-flame" alt="">
+              <span class="faq-icon text-2xl text-[#c02627] transition-transform duration-300">+</span>
+            </span>
+          </summary>
+          <div class="faq-answer">
+            <div class="faq-content">
+              Every death ends the current run completely. There are no continues. Your growth and orbs carry forward, but the run is lost forever.
+            </div>
+          </div>
+        </details>
+        
+        <!-- New FAQ Item 7 -->
+        <details class="dungeon-frame faq-item group">
+          <div class="bottom-corners"></div>
+          <summary class="faq-question w-full flex items-center justify-between px-6 py-5 text-left hover:bg-[#14120f] transition-colors cursor-pointer list-none">
+            <span class="pixel-font text-lg tracking-wide">How do orbs work?</span>
+            <span class="flex items-center gap-x-2">
+              <img src="assets/frames/flame-top.webp" class="flame w-4 h-4 opacity-0 transition-all duration-300 faq-flame" alt="">
+              <span class="faq-icon text-2xl text-[#c02627] transition-transform duration-300">+</span>
+            </span>
+          </summary>
+          <div class="faq-answer">
+            <div class="faq-content">
+              Monsters drop orbs on death. Collect them by running over them. XP orbs level you up. Health, Armor, and Stamina orbs help you survive longer.
+            </div>
+          </div>
+        </details>
+        
+        <!-- New FAQ Item 8 -->
+        <details class="dungeon-frame faq-item group">
+          <div class="bottom-corners"></div>
+          <summary class="faq-question w-full flex items-center justify-between px-6 py-5 text-left hover:bg-[#14120f] transition-colors cursor-pointer list-none">
+            <span class="pixel-font text-lg tracking-wide">Can I play on mobile?</span>
+            <span class="flex items-center gap-x-2">
+              <img src="assets/frames/flame-top.webp" class="flame w-4 h-4 opacity-0 transition-all duration-300 faq-flame" alt="">
+              <span class="faq-icon text-2xl text-[#c02627] transition-transform duration-300">+</span>
+            </span>
+          </summary>
+          <div class="faq-answer">
+            <div class="faq-content">
+              Yes. Insomnus is fully playable in the browser on both PC and mobile. The controls adapt automatically to touch.
+            </div>
+          </div>
+        </details>
+        
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER - Interactive Dungeon Style (restored & improved) -->
+  <footer class="relative border-t border-[#3a2f2a] overflow-hidden">
+    <!-- Footer background GIF -->
+    <img src="assets/footer/footer-bg.gif" 
+         class="absolute inset-0 w-full h-full object-cover pixel" 
+         style="image-rendering: pixelated; filter: grayscale(0.2) contrast(1.05) brightness(0.7); z-index: 0;" 
+         alt="Footer background">
+    
+    <!-- Dark overlays for text readability (reduced black tone) -->
+    <div class="absolute inset-0 bg-gradient-to-b from-[#0c0a08]/65 via-[#0c0a08]/45 to-[#0c0a08]/80 z-10"></div>
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_30%,rgba(12,10,8,0.35)_70%)] z-10"></div>
+
+    <div class="max-w-screen-2xl mx-auto px-8 pt-10 pb-8 relative z-20">
+      <div class="dungeon-frame p-8">
+        <div class="bottom-corners"></div>
+        
+        <div class="flex flex-col lg:flex-row gap-8 lg:gap-12 justify-between">
+          
+          <!-- Brand -->
+          <div>
+            <div class="flex items-center gap-x-3 mb-2">
+              <img src="assets/brand/logo.png" class="h-7 pixel" alt="Insomnus">
+              <span class="pixel-font text-2xl tracking-[4px] text-[#c5a46d]">INSOMNUS</span>
+            </div>
+            <div class="text-xs text-[#888]">In the realm of eternal night, only the sleepless survive.</div>
+          </div>
+          
+          <!-- Links with flame accents -->
+          <div class="grid grid-cols-2 gap-x-10 text-sm">
+            <div class="space-y-1">
+              <div class="text-[#c02627] text-[10px] tracking-[2px] mb-1">THE REALM</div>
+              <a href="https://insomnus.xyz" target="_blank" class="block hover:text-[#c02627] flex items-center gap-1 text-xs">ENTER DUNGEON <img src="assets/frames/flame-top.webp" class="flame w-3 h-3"></a>
+              <a href="https://docs.insomnus.xyz" target="_blank" class="block hover:text-[#c02627] text-xs">DOCS &amp; LORE</a>
+              <a href="#ecosystem" class="block hover:text-[#c02627] text-xs">ECOSYSTEM</a>
+            </div>
+            <div class="space-y-1">
+              <div class="text-[#c02627] text-[10px] tracking-[2px] mb-1">THE SLEEPLESS</div>
+              <a href="https://x.com/insomnusxyz" target="_blank" class="block hover:text-[#c02627] flex items-center gap-1 text-xs">X / TWITTER <img src="assets/frames/flame-top.webp" class="flame w-3 h-3"></a>
+              <a href="https://discord.gg/BCThPrJUtN" target="_blank" class="block hover:text-[#c02627] text-xs">DISCORD</a>
+              <a href="https://insomnus.xyz/login" target="_blank" class="block hover:text-[#c02627] text-xs">GET ACCESS CODE</a>
+            </div>
+          </div>
+          
+          <!-- Stats + Torch interaction -->
+          <div class="text-right">
+            <div class="text-[#666] text-xs mb-1">193,284 SLEEPLESS HAVE ENTERED</div>
+            <div onclick="lightTheTorches()" class="inline-flex items-center gap-2 cursor-pointer text-xs hover:text-[#c02627] group">
+              <span>THE DUNGEON WATCHES</span>
+              <img src="assets/frames/flame-top.webp" class="flame w-4 h-4 group-active:scale-125 transition" alt="">
+            </div>
+            <div class="mt-2 text-[10px] text-[#555]">BUILT ON SOMNIA &amp; MEGAETH</div>
+          </div>
+          
+        </div>
+      </div>
+      
+      <div class="mt-6 pt-3 border-t border-[#3a2f2a]/40 text-center text-[10px] text-[#555] tracking-[1.5px]">
+        © 2026 INSOMNUS. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Header scroll effect
+    window.addEventListener('scroll', () => {
+      const header = document.getElementById('header');
+      if (!header) return;
+      
+      if (window.scrollY > 80) {
+        header.classList.add('scrolled');
+      } else {
+        header.classList.remove('scrolled');
+      }
+      
+      updateActiveNav();
+    });
+    
+    function updateActiveNav() {
+      const links = document.querySelectorAll('nav a[href^="#"]');
+      let current = '';
+      
+      document.querySelectorAll('section[id]').forEach(section => {
+        const sectionTop = section.offsetTop;
+        if (scrollY >= sectionTop - 150) {
+          current = section.getAttribute('id');
+        }
+      });
+      
+      links.forEach(link => {
+        link.classList.remove('text-[#c02627]');
+        link.classList.remove('border-[#c02627]');
+        link.classList.remove('bg-\\[\\#14120f\\]');
+        
+        if (link.getAttribute('href') === '#' + current) {
+          link.classList.add('text-[#c02627]');
+          // Make active stand out as a block
+          if (link.classList.contains('nav-link') || link.getAttribute('href').startsWith('#')) {
+            link.classList.add('border-[#c02627]', 'bg-[#14120f]');
+          }
+        }
+      });
+    }
+    
+    // Mobile Menu Toggle
+    function toggleMobileMenu() {
+      const menu = document.getElementById('mobile-menu');
+      if (!menu) return;
+      menu.classList.toggle('hidden');
+    }
+    
+    // Extra interaction for Play Beta button
+    function enhancePlayBeta() {
+      const btn = document.querySelector('.play-beta-btn');
+      if (!btn) return;
+      
+      btn.addEventListener('click', function(e) {
+        btn.classList.add('!scale-[0.96]');
+        setTimeout(() => btn.classList.remove('!scale-[0.96]'), 180);
+      });
+    }
+    
+    function init() {
+      // Active nav
+      window.addEventListener('scroll', updateActiveNav);
+      updateActiveNav(); // initial
+      
+      enhancePlayBeta();
+      initFAQ();
+      
+      console.log('%c[Insomnus] Landing page initialized (standalone design).', 'color:#555');
+    }
+    
+    // Footer torch lighting
+    function lightTheTorches() {
+      const footer = document.querySelector('footer');
+      if (!footer) return;
+      
+      footer.style.transition = 'box-shadow 0.3s';
+      footer.style.boxShadow = '0 0 40px #c0262744';
+      
+      const flames = footer.querySelectorAll('img[src*="flame"]');
+      flames.forEach(f => f.style.filter = 'brightness(2) saturate(1.5)');
+      
+      setTimeout(() => {
+        footer.style.boxShadow = '';
+        flames.forEach(f => f.style.filter = '');
+      }, 1400);
+    }
+    
+    window.onload = init;
+
+    // ===== ENHANCED FAQ ACCORDION =====
+    function initFAQ() {
+      const items = document.querySelectorAll('details.faq-item');
+      
+      items.forEach(item => {
+        const answer = item.querySelector('.faq-answer');
+        if (answer) {
+          if (!item.hasAttribute('open')) {
+            answer.style.maxHeight = '0';
+            answer.style.opacity = '0';
+            answer.style.transform = 'translateY(-8px)';
+          }
+        }
+      });
+      
+      console.log('%c[Insomnus] FAQ initialized (native details).', 'color:#555');
+    }
+
+    // Prevent content download / right-click / drag on assets
+    function protectAssets() {
+      document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+        return false;
+      }, false);
+
+      document.addEventListener('dragstart', function(e) {
+        if (e.target.tagName === 'IMG' || e.target.tagName === 'VIDEO') {
+          e.preventDefault();
+          return false;
+        }
+      });
+
+      document.querySelectorAll('img').forEach(function(img) {
+        img.setAttribute('draggable', 'false');
+        img.classList.add('no-download');
+        img.oncontextmenu = function() { return false; };
+        img.ondragstart = function() { return false; };
+      });
+
+      document.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && ['s', 'S', 'u', 'U'].indexOf(e.key) !== -1) {
+          e.preventDefault();
+          return false;
+        }
+      });
+
+      document.querySelectorAll('img, video').forEach(function(el) {
+        el.style.userSelect = 'none';
+        el.style.webkitUserSelect = 'none';
+      });
+
+      console.log('%c[Insomnus] Asset download protection enabled.', 'color:#555');
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', protectAssets);
+    } else {
+      protectAssets();
+    }
+  </script>
+</body>
+</html>
