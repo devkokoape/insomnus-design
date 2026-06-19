@@ -165,6 +165,85 @@
       box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.4);
       border-color: #c02627;
     }
+
+    /* UNIQUE STYLING FOR CRITICAL MODES / PETS / COSMETICS SECTION */
+    #modes {
+      /* Background is now handled by the GIF layer + overlay */
+    }
+
+    #modes .critical-card {
+      background: rgba(15,13,11,0.92);
+      border: 2px solid #3a2f2a;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    #modes .critical-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(to right, #c5a46d, #c02627, #c5a46d);
+      opacity: 0.7;
+    }
+
+    #modes .critical-card:hover {
+      border-color: #c5a46d;
+      transform: translateY(-3px);
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.65);
+    }
+
+    #modes .critical-card .card-label {
+      font-family: 'VT323', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 3.5px;
+      color: #c5a46d;
+      margin-bottom: 6px;
+      display: inline-block;
+    }
+
+    #modes .critical-card .live-badge,
+    #modes .critical-card .soon-badge {
+      display: inline-block;
+      padding: 1px 9px;
+      font-size: 9px;
+      letter-spacing: 1.5px;
+      margin-bottom: 6px;
+    }
+
+    #modes .critical-card .live-badge {
+      background: rgba(192, 38, 39, 0.12);
+      color: #c02627;
+      border: 1px solid rgba(192, 38, 39, 0.3);
+    }
+
+    #modes .critical-card .soon-badge {
+      background: rgba(197, 164, 109, 0.12);
+      color: #c5a46d;
+      border: 1px solid rgba(197, 164, 109, 0.3);
+    }
+
+    #modes .critical-card .feature-list {
+      font-size: 0.875rem;
+      line-height: 1.55;
+    }
+
+    #modes .critical-card .feature-list > div {
+      position: relative;
+      padding-left: 14px;
+    }
+
+    #modes .critical-card .feature-list > div:before {
+      content: '•';
+      position: absolute;
+      left: 0;
+      color: #c02627;
+      font-size: 1rem;
+      line-height: 1;
+    }
     
     .nav-link {
       padding: 4px 10px;
@@ -211,36 +290,30 @@
       box-shadow: 0 2px 20px rgba(0,0,0,0.6);
     }
     
-    /* Play Beta Buttons - Dungeon / Pixel style */
+    /* Play Beta Buttons - Clean solid dungeon style (no flashy red glows) */
     .play-beta-btn {
       font-family: 'VT323', monospace;
       letter-spacing: 2px;
       position: relative;
-      transition: all 0.15s ease;
-    }
-    
-    .play-beta-btn:hover {
-      background-color: #9f1239;
-      border-color: #c02627;
-      box-shadow: 0 0 0 4px rgba(192, 38, 39, 0.25);
-      transform: translateY(-1px);
-    }
-    
-    .play-beta-btn:active {
-      transform: scale(0.98) translateY(0);
-      box-shadow: 0 0 0 2px rgba(192, 38, 39, 0.2);
+      background-color: #c02627;
+      border: 2px solid #3a2f2a;
+      box-shadow: 0 4px 0 #000;
+      transition: background-color 0.1s ease, transform 0.1s ease, box-shadow 0.1s ease;
     }
 
-    /* Hero PLAY BETA - more prominent */
+    .play-beta-btn:hover {
+      background-color: #d23b3b;   /* richer, slightly brighter red - no pink, no glow */
+    }
+
+    .play-beta-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 #000;
+    }
+
+    /* Hero PLAY BETA - slightly larger but same clean behavior */
     header .play-beta-btn {
       font-size: 1.1rem;
       letter-spacing: 3px;
-      box-shadow: 0 4px 0 #000;
-    }
-    
-    header .play-beta-btn:hover {
-      box-shadow: 0 0 0 6px rgba(192, 38, 39, 0.3), 0 4px 0 #000;
-      transform: translateY(-2px);
     }
 
     .text-animate .word,
@@ -329,26 +402,6 @@
       background: rgba(192, 38, 39, 0.03);
     }
     
-    /* Subtle left accent for design - positioned inside the frame */
-    details.faq-item::before {
-      content: '';
-      position: absolute;
-      left: 3px;
-      top: 3px;
-      bottom: 3px;
-      width: 2px;
-      background: #c02627;
-      opacity: 0;
-      transition: opacity 0.2s ease;
-      z-index: 1;
-      pointer-events: none;
-    }
-    
-    details.faq-item:hover::before,
-    details.faq-item[open]::before {
-      opacity: 0.7;
-    }
-    
     .faq-question {
       font-family: 'VT323', monospace;
       letter-spacing: 0.5px;
@@ -368,25 +421,6 @@
       color: #c02627;
     }
     
-    .faq-icon {
-      line-height: 1;
-      display: inline-block;
-      transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1);
-    }
-    
-    details.faq-item[open] .faq-icon {
-      color: #c02627;
-      transform: rotate(45deg);
-    }
-    
-    details.faq-item[open] .flame {
-      filter: brightness(1.4) saturate(1.3);
-    }
-    
-    details.faq-item[open] .faq-flame {
-      opacity: 1;
-    }
-    
     .faq-answer {
       border-top: 1px solid transparent;
       transition: max-height 0.45s cubic-bezier(0.23, 1, 0.32, 1),
@@ -400,9 +434,6 @@
     
     details.faq-item[open] .faq-answer {
       border-top-color: #c02627;
-      opacity: 1;
-      transform: translateY(0);
-      max-height: 300px;
     }
     
     .faq-content {
@@ -520,6 +551,7 @@
         <a href="#trials" class="nav-link text-[#c9c9c5] hover:text-white">THE TRIALS</a>
         <a href="#master" class="nav-link text-[#c9c9c5] hover:text-white">MASTER THE DUNGEON</a>
         <a href="#horde" class="nav-link text-[#c9c9c5] hover:text-white">THE HORDE</a>
+        <a href="#modes" class="nav-link text-[#c9c9c5] hover:text-white">MODES &amp; MORE</a>
         <a href="#ecosystem" class="nav-link text-[#c9c9c5] hover:text-white">ECOSYSTEM</a>
         <a href="#faq" class="nav-link text-[#c9c9c5] hover:text-white">INSCRIPTIONS</a>
       </div>
@@ -527,7 +559,7 @@
       <!-- Right: Only Play Beta - Highly Interactive -->
       <div class="flex items-center">
         <a href="https://insomnus.xyz/login" target="_blank" 
-           class="play-beta-btn inline-flex items-center justify-center px-8 py-2.5 bg-[#c02627] hover:bg-[#9f1239] border-2 border-[#3a2f2a] hover:border-[#c02627] text-sm tracking-[2px] active:scale-[0.985]">
+           class="play-beta-btn inline-flex items-center justify-center px-8 py-2.5 text-sm tracking-[2px]">
           PLAY BETA
         </a>
         
@@ -544,11 +576,12 @@
         <a href="#trials" class="block py-1.5 px-3 border border-[#3a2f2a] hover:border-[#c02627] hover:bg-[#14120f] transition-colors" onclick="toggleMobileMenu()">THE TRIALS</a>
         <a href="#master" class="block py-1.5 px-3 border border-[#3a2f2a] hover:border-[#c02627] hover:bg-[#14120f] transition-colors" onclick="toggleMobileMenu()">MASTER THE DUNGEON</a>
         <a href="#horde" class="block py-1.5 px-3 border border-[#3a2f2a] hover:border-[#c02627] hover:bg-[#14120f] transition-colors" onclick="toggleMobileMenu()">THE HORDE</a>
+        <a href="#modes" class="block py-1.5 px-3 border border-[#3a2f2a] hover:border-[#c02627] hover:bg-[#14120f] transition-colors" onclick="toggleMobileMenu()">MODES &amp; MORE</a>
         <a href="#ecosystem" class="block py-1.5 px-3 border border-[#3a2f2a] hover:border-[#c02627] hover:bg-[#14120f] transition-colors" onclick="toggleMobileMenu()">ECOSYSTEM</a>
         <a href="#faq" class="block py-1.5 px-3 border border-[#3a2f2a] hover:border-[#c02627] hover:bg-[#14120f] transition-colors" onclick="toggleMobileMenu()">INSCRIPTIONS</a>
         
         <a href="https://insomnus.xyz/login" target="_blank" 
-           class="play-beta-btn mt-2 block text-center py-2.5 text-sm tracking-[2px] border border-[#3a2f2a] hover:bg-[#9f1239] hover:border-[#c02627]">
+           class="play-beta-btn mt-2 block text-center py-2.5 text-sm tracking-[2px]">
           PLAY BETA
         </a>
       </div>
@@ -586,7 +619,7 @@
 
       <!-- Button -->
       <a href="https://insomnus.xyz/login" target="_blank"
-         class="play-beta-btn alagard-font inline-flex items-center justify-center px-8 py-3 sm:px-10 sm:py-3.5 md:px-14 md:py-4 bg-[#c02627] hover:bg-[#9f1239] text-base sm:text-lg md:text-xl tracking-[1px] border-2 border-[#3a2f2a] hover:border-[#c02627] text-white active:scale-[0.985]">
+         class="play-beta-btn alagard-font inline-flex items-center justify-center px-8 py-3 sm:px-10 sm:py-3.5 md:px-14 md:py-4 text-base sm:text-lg md:text-xl tracking-[1px] text-white">
         PLAY BETA
       </a>
 
@@ -798,6 +831,90 @@
     </div>
   </section>
 
+  <!-- MODES, PETS & COSMETICS -->
+  <section id="modes" class="relative overflow-hidden py-20 border-b border-[#3a2f2a]">
+    <!-- Background GIF with B&W effect -->
+    <img src="assets/gifs/modes-bg.gif" 
+         class="absolute inset-0 w-full h-full object-cover pixel"
+         style="image-rendering: pixelated; filter: grayscale(0.75) contrast(1.1) brightness(0.70); z-index: 0;"
+         alt="Insomnus modes and more background">
+    <!-- Dark overlay for readability -->
+    <div class="absolute inset-0 bg-[#0c0a08]/75 z-10"></div>
+
+    <div class="relative z-20 max-w-screen-2xl mx-auto px-8">
+      <div class="mb-10">
+        <div class="text-xs tracking-[4px] text-[#c02627]">DEEPEN THE EXPERIENCE</div>
+        <div class="pixel-font text-5xl md:text-6xl leading-none tracking-[-2px]">MODES • PETS • COSMETICS</div>
+        <p class="mt-3 max-w-2xl text-[#a8a29e]">Every run can feel brand new. Master different modes, bond with powerful pets, and collect rare cosmetics that evolve with your legend.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        <!-- Game Modes -->
+        <div class="critical-card p-8">
+          <div class="card-label">SURVIVE DIFFERENTLY</div>
+          <div class="pixel-font text-3xl mb-5 text-white">GAME MODES</div>
+          
+          <div class="feature-list text-[#a8a29e]">
+            <div class="live-badge mb-2">LIVE</div>
+            <div>Normal Mode — The core endless survival experience</div>
+            <div>Boss Events — Take on powerful bosses for big rewards</div>
+            <div>Weekly Events — Fresh rotating challenges every week</div>
+            
+            <div class="pt-3">
+              <span class="soon-badge">COMING SOON</span>
+            </div>
+            <div>Co-op Mode</div>
+            <div>Party Mode</div>
+            <div>Dungeon Levels &amp; Mini-games</div>
+          </div>
+        </div>
+        
+        <!-- Pets -->
+        <div class="critical-card p-8">
+          <div class="card-label">YOUR LOYAL ALLIES</div>
+          <div class="pixel-font text-3xl mb-5 text-white">PETS</div>
+          
+          <div class="feature-list text-[#a8a29e]">
+            <div>Gen 1 companion units that follow you automatically.</div>
+            <div>Pets add utility, pressure, or sustain with no extra buttons.</div>
+            <div class="pt-1">Three distinct roles that shape how you play.</div>
+            
+            <div class="pt-3 text-xs space-y-1">
+              <a href="https://docs.insomnus.xyz/companions-and-enemies/pets" target="_blank" class="block text-[#c02627] hover:underline">Full pet details →</a>
+              <a href="https://x.com/insomnusxyz/status/2050211623059763345" target="_blank" class="block text-[#c02627] hover:underline">Gen 1 deep dive on X →</a>
+            </div>
+            
+            <div class="pt-3 text-[#c5a46d] text-xs">Fixed supply Gen 1. Higher generations via gameplay-only breeding.</div>
+          </div>
+        </div>
+        
+        <!-- Cosmetics -->
+        <div class="critical-card p-8">
+          <div class="card-label">STAND OUT IN THE DARK</div>
+          <div class="pixel-font text-3xl mb-5 text-white">COSMETICS</div>
+          
+          <div class="feature-list text-[#a8a29e]">
+            <div>Currently testing weather effects (soon an on-chain item).</div>
+            
+            <div class="pt-2">
+              <span class="card-label" style="color:#c5a46d">PLANNED:</span>
+            </div>
+            <div>Clothes</div>
+            <div>Weapon skins</div>
+            <div>Weather effects</div>
+            
+            <div class="pt-2">Rarity system. Earned through gameplay and treasure (coming soon).</div>
+            
+            <div class="pt-2 text-[#c5a46d] text-xs">No on-chain cosmetics yet — weather effects will be the first.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+  </section>
+
   <!-- ECOSYSTEM SUPPORTERS -->
   <section id="ecosystem" class="py-20 border-b border-[#3a2f2a]">
     <div class="max-w-screen-2xl mx-auto px-8">
@@ -866,8 +983,8 @@
           </div>
           <div class="p-6">
             <div class="pixel-font text-2xl mb-1">X1 ECOCHAIN</div>
-            <div class="text-xs text-[#c5a46d] tracking-[2px] mb-3">SCALABLE GAMING LAYER</div>
-            <div class="text-sm text-[#a8a29e]">Empowering massive multiplayer experiences within the ecosystem.</div>
+            <div class="text-xs text-[#c5a46d] tracking-[2px] mb-3">Vision Is Clear. Future Is Green.</div>
+            <div class="text-sm text-[#a8a29e]">first decentralized, energy-efficient, and environmentally friendly blockchain</div>
           </div>
         </div>
 
@@ -890,14 +1007,10 @@
       <div class="max-w-4xl mx-auto space-y-3" id="faq-accordion">
         
         <!-- FAQ Item 1 -->
-        <details class="dungeon-frame faq-item group">
+        <details class="dungeon-frame faq-item">
           <div class="bottom-corners"></div>
-          <summary class="faq-question w-full flex items-center justify-between px-6 py-5 text-left hover:bg-[#14120f] transition-colors cursor-pointer list-none">
+          <summary class="faq-question w-full px-6 py-5 text-left hover:bg-[#14120f] transition-colors cursor-pointer list-none">
             <span class="pixel-font text-lg tracking-wide">What is my goal in this game?</span>
-            <span class="flex items-center gap-x-2">
-              <img src="assets/frames/flame-top.webp" class="flame w-4 h-4 opacity-0 transition-all duration-300 faq-flame" alt="">
-              <span class="faq-icon text-2xl text-[#c02627] transition-transform duration-300">+</span>
-            </span>
           </summary>
           <div class="faq-answer">
             <div class="faq-content">
@@ -907,14 +1020,10 @@
         </details>
         
         <!-- FAQ Item 2 -->
-        <details class="dungeon-frame faq-item group">
+        <details class="dungeon-frame faq-item">
           <div class="bottom-corners"></div>
-          <summary class="faq-question w-full flex items-center justify-between px-6 py-5 text-left hover:bg-[#14120f] transition-colors cursor-pointer list-none">
+          <summary class="faq-question w-full px-6 py-5 text-left hover:bg-[#14120f] transition-colors cursor-pointer list-none">
             <span class="pixel-font text-lg tracking-wide">What resets after each session?</span>
-            <span class="flex items-center gap-x-2">
-              <img src="assets/frames/flame-top.webp" class="flame w-4 h-4 opacity-0 transition-all duration-300 faq-flame" alt="">
-              <span class="faq-icon text-2xl text-[#c02627] transition-transform duration-300">+</span>
-            </span>
           </summary>
           <div class="faq-answer">
             <div class="faq-content">
@@ -924,14 +1033,10 @@
         </details>
         
         <!-- FAQ Item 3 -->
-        <details class="dungeon-frame faq-item group">
+        <details class="dungeon-frame faq-item">
           <div class="bottom-corners"></div>
-          <summary class="faq-question w-full flex items-center justify-between px-6 py-5 text-left hover:bg-[#14120f] transition-colors cursor-pointer list-none">
+          <summary class="faq-question w-full px-6 py-5 text-left hover:bg-[#14120f] transition-colors cursor-pointer list-none">
             <span class="pixel-font text-lg tracking-wide">How do my NFTs affect gameplay?</span>
-            <span class="flex items-center gap-x-2">
-              <img src="assets/frames/flame-top.webp" class="flame w-4 h-4 opacity-0 transition-all duration-300 faq-flame" alt="">
-              <span class="faq-icon text-2xl text-[#c02627] transition-transform duration-300">+</span>
-            </span>
           </summary>
           <div class="faq-answer">
             <div class="faq-content">
@@ -941,14 +1046,10 @@
         </details>
         
         <!-- FAQ Item 4 -->
-        <details class="dungeon-frame faq-item group">
+        <details class="dungeon-frame faq-item">
           <div class="bottom-corners"></div>
-          <summary class="faq-question w-full flex items-center justify-between px-6 py-5 text-left hover:bg-[#14120f] transition-colors cursor-pointer list-none">
+          <summary class="faq-question w-full px-6 py-5 text-left hover:bg-[#14120f] transition-colors cursor-pointer list-none">
             <span class="pixel-font text-lg tracking-wide">What is the Points system?</span>
-            <span class="flex items-center gap-x-2">
-              <img src="assets/frames/flame-top.webp" class="flame w-4 h-4 opacity-0 transition-all duration-300 faq-flame" alt="">
-              <span class="faq-icon text-2xl text-[#c02627] transition-transform duration-300">+</span>
-            </span>
           </summary>
           <div class="faq-answer">
             <div class="faq-content">
@@ -958,14 +1059,10 @@
         </details>
         
         <!-- New FAQ Item 5 -->
-        <details class="dungeon-frame faq-item group">
+        <details class="dungeon-frame faq-item">
           <div class="bottom-corners"></div>
-          <summary class="faq-question w-full flex items-center justify-between px-6 py-5 text-left hover:bg-[#14120f] transition-colors cursor-pointer list-none">
+          <summary class="faq-question w-full px-6 py-5 text-left hover:bg-[#14120f] transition-colors cursor-pointer list-none">
             <span class="pixel-font text-lg tracking-wide">Is the game free to play?</span>
-            <span class="flex items-center gap-x-2">
-              <img src="assets/frames/flame-top.webp" class="flame w-4 h-4 opacity-0 transition-all duration-300 faq-flame" alt="">
-              <span class="faq-icon text-2xl text-[#c02627] transition-transform duration-300">+</span>
-            </span>
           </summary>
           <div class="faq-answer">
             <div class="faq-content">
@@ -975,14 +1072,10 @@
         </details>
         
         <!-- New FAQ Item 6 -->
-        <details class="dungeon-frame faq-item group">
+        <details class="dungeon-frame faq-item">
           <div class="bottom-corners"></div>
-          <summary class="faq-question w-full flex items-center justify-between px-6 py-5 text-left hover:bg-[#14120f] transition-colors cursor-pointer list-none">
+          <summary class="faq-question w-full px-6 py-5 text-left hover:bg-[#14120f] transition-colors cursor-pointer list-none">
             <span class="pixel-font text-lg tracking-wide">What is permadeath?</span>
-            <span class="flex items-center gap-x-2">
-              <img src="assets/frames/flame-top.webp" class="flame w-4 h-4 opacity-0 transition-all duration-300 faq-flame" alt="">
-              <span class="faq-icon text-2xl text-[#c02627] transition-transform duration-300">+</span>
-            </span>
           </summary>
           <div class="faq-answer">
             <div class="faq-content">
@@ -992,14 +1085,10 @@
         </details>
         
         <!-- New FAQ Item 7 -->
-        <details class="dungeon-frame faq-item group">
+        <details class="dungeon-frame faq-item">
           <div class="bottom-corners"></div>
-          <summary class="faq-question w-full flex items-center justify-between px-6 py-5 text-left hover:bg-[#14120f] transition-colors cursor-pointer list-none">
+          <summary class="faq-question w-full px-6 py-5 text-left hover:bg-[#14120f] transition-colors cursor-pointer list-none">
             <span class="pixel-font text-lg tracking-wide">How do orbs work?</span>
-            <span class="flex items-center gap-x-2">
-              <img src="assets/frames/flame-top.webp" class="flame w-4 h-4 opacity-0 transition-all duration-300 faq-flame" alt="">
-              <span class="faq-icon text-2xl text-[#c02627] transition-transform duration-300">+</span>
-            </span>
           </summary>
           <div class="faq-answer">
             <div class="faq-content">
@@ -1009,14 +1098,10 @@
         </details>
         
         <!-- New FAQ Item 8 -->
-        <details class="dungeon-frame faq-item group">
+        <details class="dungeon-frame faq-item">
           <div class="bottom-corners"></div>
-          <summary class="faq-question w-full flex items-center justify-between px-6 py-5 text-left hover:bg-[#14120f] transition-colors cursor-pointer list-none">
+          <summary class="faq-question w-full px-6 py-5 text-left hover:bg-[#14120f] transition-colors cursor-pointer list-none">
             <span class="pixel-font text-lg tracking-wide">Can I play on mobile?</span>
-            <span class="flex items-center gap-x-2">
-              <img src="assets/frames/flame-top.webp" class="flame w-4 h-4 opacity-0 transition-all duration-300 faq-flame" alt="">
-              <span class="faq-icon text-2xl text-[#c02627] transition-transform duration-300">+</span>
-            </span>
           </summary>
           <div class="faq-answer">
             <div class="faq-content">
@@ -1056,17 +1141,17 @@
             <div class="text-xs text-[#888]">In the realm of eternal night, only the sleepless survive.</div>
           </div>
           
-          <!-- Links with flame accents -->
+          <!-- Links -->
           <div class="grid grid-cols-2 gap-x-10 text-sm">
             <div class="space-y-1">
               <div class="text-[#c02627] text-[10px] tracking-[2px] mb-1">THE REALM</div>
-              <a href="https://insomnus.xyz" target="_blank" class="block hover:text-[#c02627] flex items-center gap-1 text-xs">ENTER DUNGEON <img src="assets/frames/flame-top.webp" class="flame w-3 h-3"></a>
+              <a href="https://insomnus.xyz" target="_blank" class="block hover:text-[#c02627] text-xs">ENTER DUNGEON</a>
               <a href="https://docs.insomnus.xyz" target="_blank" class="block hover:text-[#c02627] text-xs">DOCS &amp; LORE</a>
               <a href="#ecosystem" class="block hover:text-[#c02627] text-xs">ECOSYSTEM</a>
             </div>
             <div class="space-y-1">
               <div class="text-[#c02627] text-[10px] tracking-[2px] mb-1">THE SLEEPLESS</div>
-              <a href="https://x.com/insomnusxyz" target="_blank" class="block hover:text-[#c02627] flex items-center gap-1 text-xs">X / TWITTER <img src="assets/frames/flame-top.webp" class="flame w-3 h-3"></a>
+              <a href="https://x.com/insomnusxyz" target="_blank" class="block hover:text-[#c02627] text-xs">X / TWITTER</a>
               <a href="https://discord.gg/BCThPrJUtN" target="_blank" class="block hover:text-[#c02627] text-xs">DISCORD</a>
               <a href="https://insomnus.xyz/login" target="_blank" class="block hover:text-[#c02627] text-xs">GET ACCESS CODE</a>
             </div>
@@ -1077,7 +1162,6 @@
             <div class="text-[#666] text-xs mb-1">193,284 SLEEPLESS HAVE ENTERED</div>
             <div onclick="lightTheTorches()" class="inline-flex items-center gap-2 cursor-pointer text-xs hover:text-[#c02627] group">
               <span>THE DUNGEON WATCHES</span>
-              <img src="assets/frames/flame-top.webp" class="flame w-4 h-4 group-active:scale-125 transition" alt="">
             </div>
             <div class="mt-2 text-[10px] text-[#555]">BUILT ON SOMNIA &amp; MEGAETH</div>
           </div>
@@ -1139,29 +1223,17 @@
       menu.classList.toggle('hidden');
     }
     
-    // Extra interaction for Play Beta button
-    function enhancePlayBeta() {
-      const btn = document.querySelector('.play-beta-btn');
-      if (!btn) return;
-      
-      btn.addEventListener('click', function(e) {
-        btn.classList.add('!scale-[0.96]');
-        setTimeout(() => btn.classList.remove('!scale-[0.96]'), 180);
-      });
-    }
-    
     function init() {
       // Active nav
       window.addEventListener('scroll', updateActiveNav);
       updateActiveNav(); // initial
       
-      enhancePlayBeta();
       initFAQ();
       
       console.log('%c[Insomnus] Landing page initialized (standalone design).', 'color:#555');
     }
     
-    // Footer torch lighting
+    // Footer "lighting" effect (glow on click)
     function lightTheTorches() {
       const footer = document.querySelector('footer');
       if (!footer) return;
@@ -1169,12 +1241,8 @@
       footer.style.transition = 'box-shadow 0.3s';
       footer.style.boxShadow = '0 0 40px #c0262744';
       
-      const flames = footer.querySelectorAll('img[src*="flame"]');
-      flames.forEach(f => f.style.filter = 'brightness(2) saturate(1.5)');
-      
       setTimeout(() => {
         footer.style.boxShadow = '';
-        flames.forEach(f => f.style.filter = '');
       }, 1400);
     }
     
@@ -1186,16 +1254,29 @@
       
       items.forEach(item => {
         const answer = item.querySelector('.faq-answer');
-        if (answer) {
-          if (!item.hasAttribute('open')) {
+        if (!answer) return;
+        
+        // Listen for open/close and animate
+        item.addEventListener('toggle', () => {
+          if (item.open) {
+            // Expand to natural height (use RAF for timing)
+            requestAnimationFrame(() => {
+              answer.style.maxHeight = answer.scrollHeight + 'px';
+              answer.style.opacity = '1';
+              answer.style.transform = 'translateY(0)';
+            });
+          } else {
+            // Collapse with proper animation start
+            answer.style.maxHeight = answer.scrollHeight + 'px';
+            void answer.offsetHeight; // force reflow
             answer.style.maxHeight = '0';
             answer.style.opacity = '0';
-            answer.style.transform = 'translateY(-8px)';
+            answer.style.transform = 'translateY(-10px)';
           }
-        }
+        });
       });
       
-      console.log('%c[Insomnus] FAQ initialized (native details).', 'color:#555');
+      console.log('%c[Insomnus] FAQ initialized (native details with toggle animation).', 'color:#555');
     }
 
     // Prevent content download / right-click / drag on assets
