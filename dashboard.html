@@ -1,0 +1,2408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>INSOMNUS • Dashboard</title>
+  <link rel="icon" type="image/png" href="assets/brand/logo.png">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @font-face {
+      font-family: 'Alagard';
+      src: url('assets/fonts/alagard.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+
+    :root {
+      --bg: #0c0a08;
+      --stone: #14120f;
+      --accent: #c02627;
+      --gold: #c5a46d;
+      --text: #c9c9c5;
+      --line: #3a2f2a;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Alagard', serif;
+      cursor: url('assets/cursors/cursor.png') 16 16, crosshair !important;
+      -webkit-user-select: none;
+      user-select: none;
+      overflow: hidden;
+    }
+
+    a, button, .cursor-pointer, details, summary, input, [onclick], label {
+      cursor: url('assets/cursors/cursor-click.png') 16 16, pointer !important;
+    }
+
+    input, textarea {
+      -webkit-user-select: text !important;
+      user-select: text !important;
+    }
+
+    .pixel-font,
+    .alagard-font {
+      font-family: 'Alagard', serif;
+      letter-spacing: 1px;
+    }
+
+    .dungeon-frame {
+      position: relative;
+      border: 3px solid var(--line);
+      background: #12100e;
+    }
+    .dungeon-frame::before,
+    .dungeon-frame::after,
+    .dungeon-frame .bottom-corners::before,
+    .dungeon-frame .bottom-corners::after {
+      content: '';
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      z-index: 3;
+      pointer-events: none;
+    }
+    .dungeon-frame::before { top: -3px; left: -3px; background-image: url('assets/frames/corner-top-left.webp'); }
+    .dungeon-frame::after { top: -3px; right: -3px; background-image: url('assets/frames/corner-top-right.webp'); }
+    .dungeon-frame .bottom-corners::before { bottom: -3px; left: -3px; background-image: url('assets/frames/corner-bottom-left.webp'); }
+    .dungeon-frame .bottom-corners::after { bottom: -3px; right: -3px; background-image: url('assets/frames/corner-bottom-right.webp'); }
+
+    .play-beta-btn {
+      font-family: 'Alagard', serif;
+      letter-spacing: 2px;
+      background-color: #c02627;
+      border: 2px solid #3a2f2a;
+      box-shadow: 0 4px 0 #000;
+      color: #fff;
+      transition: background-color 0.1s ease, transform 0.1s ease, box-shadow 0.1s ease;
+    }
+    .play-beta-btn:hover { background-color: #d23b3b; }
+    .play-beta-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #000; }
+
+    .btn-outline {
+      font-family: 'Alagard', serif;
+      letter-spacing: 1.5px;
+      border: 2px solid var(--line);
+      background: rgba(12,10,8,0.55);
+      color: var(--text);
+      transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+    }
+    .btn-outline:hover { border-color: var(--accent); color: #fff; background: rgba(192,38,39,0.1); }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 2px solid rgba(127, 29, 29, 0.45);
+      background: rgba(69, 10, 10, 0.72);
+      padding: 8px 14px;
+      font-family: 'Alagard', serif;
+      letter-spacing: 1px;
+      white-space: nowrap;
+    }
+
+    .side-link {
+      display: block;
+      padding: 8px 14px;
+      font-family: 'Alagard', serif;
+      font-size: 1.25rem;
+      letter-spacing: 1px;
+      border: 2px solid transparent;
+      transition: all 0.15s ease;
+    }
+    .side-link:hover { background: rgba(255,255,255,0.06); }
+    .side-link.active {
+      background: rgba(255,255,255,0.08);
+      border-color: #4b5563;
+    }
+
+    .acc-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 14px;
+      font-family: 'Alagard', serif;
+      font-size: 1.25rem;
+      letter-spacing: 1px;
+      color: #9ca3af;
+      text-align: left;
+    }
+    .acc-btn:hover { color: #fff; }
+    .acc-panel { display: none; padding-left: 8px; }
+    .acc-panel.open { display: grid; gap: 4px; }
+
+    .view { display: none; }
+    .view.active { display: block; }
+
+    .stat-card {
+      position: relative;
+      min-height: 110px;
+      border: 2px solid var(--line);
+      background: #12100e url('assets/dashboard/card-bg.png') center / cover;
+      overflow: hidden;
+    }
+    .stat-card:hover { border-color: #c5a46d; }
+
+    .news-track {
+      display: flex;
+      gap: 1.75rem;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      padding: 10px 4px 18px;
+    }
+    .news-track::-webkit-scrollbar { height: 8px; }
+
+    .news-card {
+      flex: 0 0 min(420px, 78vw);
+      scroll-snap-align: start;
+    }
+    .news-card img {
+      width: 100%;
+      height: 168px;
+      object-fit: cover;
+      display: block;
+      image-rendering: auto;
+    }
+
+    .activity-table th {
+      font-family: 'Alagard', serif;
+      letter-spacing: 2px;
+      color: #6b7280;
+      font-weight: 400;
+      text-align: left;
+      padding: 8px 12px;
+      font-size: 0.95rem;
+    }
+    .activity-table td {
+      padding: 10px 12px;
+      border-top: 1px solid rgba(58,47,42,0.7);
+      font-family: 'Alagard', serif;
+      font-size: 1.15rem;
+    }
+    .activity-table tr:hover td { background: rgba(192,38,39,0.06); }
+
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-track { background: #12100e; border: 1px solid #3a2f2a; }
+    ::-webkit-scrollbar-thumb { background: #c02627; border: 1px solid #3a2f2a; }
+    ::-webkit-scrollbar-thumb:hover { background: #e11d48; }
+    html { scrollbar-width: thin; scrollbar-color: #c02627 #12100e; }
+
+    img { -webkit-user-drag: none; }
+
+    .lab-tab {
+      font-family: 'Alagard', serif;
+      letter-spacing: 2px;
+      padding: 8px 18px;
+      border: 2px solid var(--line);
+      color: #9ca3af;
+      background: rgba(12,10,8,0.5);
+    }
+    .lab-tab.active {
+      color: #fff;
+      border-color: #c02627;
+      background: rgba(192,38,39,0.14);
+    }
+
+    .lintel {
+      position: relative;
+      height: 118px;
+      background: url('assets/lab/lintel.jpg') center / cover no-repeat;
+    }
+    .lintel-copy {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .alcove {
+      position: relative;
+      min-height: 380px;
+      background: url('assets/lab/alcove.jpg') center / cover no-repeat;
+      overflow: hidden;
+    }
+    .alcove::before {
+      content: '';
+      position: absolute;
+      left: 0; right: 0; top: 0;
+      height: 18px;
+      background: url('assets/frames/flame-top.webp') center / auto 18px repeat-x;
+      pointer-events: none;
+      z-index: 2;
+    }
+    .alcove .pet-art {
+      position: absolute;
+      left: 50%;
+      bottom: 26%;
+      transform: translateX(-50%);
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      max-height: 168px;
+      width: auto;
+      filter: drop-shadow(0 10px 0 rgba(0,0,0,0.55));
+      z-index: 3;
+    }
+    .mint-desk {
+      align-items: stretch;
+    }
+    @media (min-width: 900px) {
+      .mint-desk { grid-template-columns: 1.15fr 1fr; }
+    }
+    .mint-stage {
+      position: relative;
+      border: 4px solid #c5a46d;
+      outline: 2px solid #3a2f2a;
+      outline-offset: -8px;
+      background: #080604;
+    }
+    .mint-stage img {
+      width: 100%;
+      height: auto;
+      display: block;
+      object-fit: contain;
+    }
+    .switcher {
+      position: absolute;
+      top: 42%;
+      z-index: 4;
+      width: 34px;
+      height: 52px;
+      border: 2px solid #5a4030;
+      background: rgba(12,10,8,0.72);
+      color: #c5a46d;
+      font-family: 'Alagard', serif;
+      font-size: 1.4rem;
+    }
+    .switcher:hover { border-color: #c02627; color: #fff; }
+    .switcher.prev { left: 10px; }
+    .switcher.next { right: 10px; }
+    .mint-picks {
+      display: flex;
+      gap: 0;
+      border-top: 2px solid #3a2f2a;
+    }
+    .mint-pick {
+      flex: 1;
+      padding: 10px 8px;
+      font-family: 'Alagard', serif;
+      color: #c9c9c5;
+      background: #100e0c;
+    }
+    .mint-pick + .mint-pick { border-left: 2px solid #3a2f2a; }
+    .mint-pick.active { color: #fff; background: #1a1210; box-shadow: inset 0 3px 0 #c02627; }
+
+    .phase-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    @media (min-width: 800px) {
+      .phase-row { grid-template-columns: repeat(3, 1fr); }
+    }
+    .phase {
+      border: 2px solid #3a2f2a;
+      background: #14120f;
+      padding: 18px 16px;
+    }
+    .phase.on { border-color: #c02627; }
+    .phase .n { color: #c5a46d; letter-spacing: 2px; font-size: 0.8rem; }
+    .phase h4 { font-size: 1.4rem; color: #fff; margin: 6px 0 8px; }
+    .phase p { color: #c9c9c5; line-height: 1.45; }
+    .fill-slot {
+      border: 2px dashed #3a2f2a;
+      background: #100e0c;
+      min-height: 120px;
+      padding: 20px 18px;
+    }
+    .fill-slot.tall { min-height: 180px; }
+    .note-line {
+      color: #6b7280;
+      font-size: 0.9rem;
+    }
+    .track {
+      border: 2px solid #3a2f2a;
+      background: #0c0a08;
+      padding: 12px;
+    }
+    .track .top {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .track .big { font-size: 1.7rem; color: #fff; line-height: 1; }
+    .track-bar {
+      height: 8px;
+      background: #1a1612;
+      border: 1px solid #3a2f2a;
+    }
+    .track-fill {
+      height: 100%;
+      background: #c02627;
+      width: 0;
+    }
+    .track .sub { margin-top: 6px; color: #9ca3af; font-size: 0.85rem; }
+    .faq-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    @media (min-width: 800px) {
+      .faq-grid { grid-template-columns: 1fr 1fr; }
+    }
+    .faq-card {
+      border: 2px solid #3a2f2a;
+      background: #14120f;
+      padding: 20px 18px 18px;
+      min-height: 140px;
+    }
+    .faq-card:hover { border-color: #c02627; }
+    .faq-card .n {
+      display: block;
+      color: #c5a46d;
+      letter-spacing: 3px;
+      font-size: 0.75rem;
+      margin-bottom: 8px;
+    }
+    .faq-card h4 {
+      font-family: 'Alagard', serif;
+      font-size: 1.35rem;
+      color: #fff;
+      line-height: 1.2;
+      margin-bottom: 10px;
+    }
+    .faq-card p {
+      color: #c9c9c5;
+      line-height: 1.55;
+    }
+    .wl-box {
+      position: relative;
+      overflow: hidden;
+      min-height: 440px;
+      margin: 0;
+      border: 3px solid #4a3d32;
+      box-shadow: inset 0 0 0 8px #0c0a08;
+    }
+    .wl-box .wl-bg {
+      position: absolute;
+      inset: 0;
+      background: #080604 url('assets/lab/header-cavern.png') center 70% / cover no-repeat;
+    }
+    .wl-box .wl-veil {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(12,10,8,0.82) 0%, rgba(12,10,8,0.45) 48%, rgba(12,10,8,0.22) 100%);
+    }
+    .wl-inner {
+      position: relative;
+      z-index: 1;
+      min-height: 440px;
+      padding: 56px 20px 48px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+    .wl-inner h3 {
+      font-family: 'Alagard', serif;
+      font-size: clamp(2.2rem, 4.5vw, 3.4rem);
+      color: #c02627;
+      line-height: 0.9;
+      text-shadow: 0 3px 0 #000;
+    }
+    .wl-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0;
+      margin: 18px auto 0;
+      width: min(640px, 100%);
+      border: 2px solid #c02627;
+      background: #0c0a08;
+    }
+    .wl-row input {
+      flex: 1 1 200px;
+      border: 0;
+      background: transparent;
+      color: #fff;
+      padding: 14px 16px;
+      font-family: 'Alagard', serif;
+      font-size: 1.15rem;
+    }
+    .wl-row input:focus { outline: none; }
+    .wl-row .bind-btn {
+      border: 0;
+      border-left: 2px solid #c02627;
+      box-shadow: none;
+    }
+    .wl-stage { position: relative; width: min(640px, 100%); }
+    .wl-inline {
+      display: none;
+      align-self: center;
+      padding: 0 12px;
+      color: #c02627;
+      white-space: nowrap;
+      font-size: 0.95rem;
+    }
+    .wl-inline.on { display: block; }
+    .wl-inline.hit { color: #c5a46d; }
+    .wl-counts {
+      margin-top: 22px;
+      width: min(880px, 100%);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    @media (min-width: 800px) {
+      .wl-counts { grid-template-columns: repeat(4, 1fr); }
+    }
+    .wl-count {
+      position: relative;
+      padding: 16px 10px 14px;
+      border: 2px solid #8a6a32;
+      background: #0c0a08;
+    }
+    .wl-count::before,
+    .wl-count::after {
+      content: '';
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border-color: #c5a46d;
+      border-style: solid;
+      pointer-events: none;
+    }
+    .wl-count::before { top: 4px; left: 4px; border-width: 2px 0 0 2px; }
+    .wl-count::after { top: 4px; right: 4px; border-width: 2px 2px 0 0; }
+    .wl-count .amt {
+      display: block;
+      font-family: 'Alagard', serif;
+      font-size: 2.1rem;
+      color: #fff;
+      line-height: 1;
+    }
+    .wl-count .n { color: #6b7280; letter-spacing: 1px; font-size: 0.78rem; margin-top: 6px; }
+    .wl-count h4 { color: #c9c9c5; font-size: 1rem; margin: 2px 0 0; }
+    .wl-count p { display: none; }
+    .wl-count.lit { border-color: #c02627; }
+    .wl-count.lit .amt { color: #c02627; }
+    .wl-count.lit h4 { color: #fff; }
+    .wl-gates {
+      display: none;
+    }
+    @media (min-width: 800px) {
+      .wl-gates { grid-template-columns: repeat(4, 1fr); }
+    }
+    .wl-gate {
+      border: 2px solid #3a2f2a;
+      background: #0c0a08;
+      padding: 14px 10px 12px;
+      text-align: center;
+    }
+    .wl-gate .n { color: #6b7280; letter-spacing: 2px; font-size: 0.72rem; }
+    .wl-gate h4 { color: #c9c9c5; font-size: 1.15rem; margin-top: 6px; }
+    .wl-gate.lit {
+      border-color: #c02627;
+      background: #1a1010;
+    }
+    .wl-gate.lit h4 { color: #fff; }
+    .wl-gate.lit .n { color: #c5a46d; }
+    .phase-row-4 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    @media (min-width: 900px) {
+      .phase-row-4 { grid-template-columns: repeat(4, 1fr); }
+    }
+
+    .seals { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; }
+    .seal {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-top: 2px solid #3a2f2a;
+      background: #100e0c;
+      text-align: left;
+    }
+    .seal + .seal { border-left: 2px solid #3a2f2a; }
+    .seal img {
+      width: 36px;
+      height: 36px;
+      object-fit: contain;
+      image-rendering: pixelated;
+    }
+    .seal.active { background: rgba(192,38,39,0.16); box-shadow: inset 0 3px 0 #c02627; }
+    .seal .nm { font-family: 'Alagard', serif; font-size: 1.05rem; color: #c9c9c5; }
+    .seal.active .nm { color: #fff; }
+
+    .ledger {
+      background: #12100e;
+    }
+    .wax {
+      display: inline-block;
+      padding: 2px 10px;
+      border: 1px solid rgba(192,38,39,0.55);
+      background: rgba(192,38,39,0.12);
+      color: #e8b4b4;
+      font-family: 'Alagard', serif;
+      letter-spacing: 2px;
+      font-size: 11px;
+    }
+    .slab {
+      border: 2px solid #3a2f2a;
+      background: #0c0a08;
+      padding: 12px;
+    }
+
+    .qty-box {
+      display: flex;
+      align-items: center;
+      border: 2px solid var(--line);
+      background: rgba(0,0,0,0.45);
+    }
+    .qty-box button {
+      width: 40px;
+      height: 42px;
+      font-family: 'Alagard', serif;
+      font-size: 1.3rem;
+      color: #c5a46d;
+    }
+    .qty-box button:hover { color: #fff; background: rgba(192,38,39,0.15); }
+    .qty-box input {
+      width: 52px;
+      height: 42px;
+      text-align: center;
+      background: transparent;
+      border-left: 2px solid var(--line);
+      border-right: 2px solid var(--line);
+      color: #fff;
+      font-family: 'Alagard', serif;
+      font-size: 1.3rem;
+    }
+
+    .bind-btn {
+      font-family: 'Alagard', 'Alagard', serif;
+      letter-spacing: 2px;
+      background: #c02627;
+      border: 2px solid #3a2f2a;
+      box-shadow: 0 4px 0 #000;
+      color: #fff;
+      padding: 10px 22px;
+    }
+    .bind-btn:hover { background: #d23b3b; }
+    .bind-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #000; }
+
+    .inscription { border: 2px solid var(--line); background: rgba(12,10,8,0.55); }
+    .inscription[open] { border-color: #c02627; }
+    .inscription summary {
+      list-style: none;
+      font-family: 'Alagard', serif;
+      letter-spacing: 1px;
+      font-size: 1.15rem;
+      padding: 12px 16px;
+    }
+    .inscription summary::-webkit-details-marker { display: none; }
+    .inscription summary:hover { color: #fff; }
+
+    .info-kicker {
+      font-family: 'Alagard', serif;
+      letter-spacing: 2.5px;
+      font-size: 11px;
+      color: #c5a46d;
+    }
+    .section-title {
+      font-family: 'Alagard', serif;
+      font-size: 1.85rem;
+      letter-spacing: 1px;
+      color: #c5a46d;
+      line-height: 1;
+    }
+    .fact-list { display: grid; gap: 8px; }
+    .fact-list li {
+      position: relative;
+      padding-left: 14px;
+      font-size: 0.92rem;
+      line-height: 1.45;
+      color: #d1d5db;
+    }
+    .fact-list li::before {
+      content: '•';
+      position: absolute;
+      left: 0;
+      color: #c02627;
+    }
+
+    .mint-bar {
+      position: sticky;
+      bottom: 0;
+      z-index: 8;
+      border: 2px solid var(--line);
+      background: rgba(12,10,8,0.92);
+      backdrop-filter: blur(8px);
+    }
+
+    .review-sheet {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.72);
+      padding: 16px;
+    }
+    .review-sheet.open { display: flex; }
+
+    .lab-pane { display: none; }
+    .lab-pane.active { display: block; }
+
+    .codex-open {
+      position: relative;
+      min-height: 340px;
+      overflow: hidden;
+    }
+    .codex-open .hall {
+      position: absolute;
+      inset: 0;
+      background: #080604 url('assets/lab/header-museum.png') center 38% / cover no-repeat;
+    }
+    .mint-hero .hall {
+      background-image: url('assets/lab/header-mint.png');
+      background-position: center 60%;
+    }
+    .breed-hero .hall {
+      background-image: url('assets/lab/alcove.jpg');
+      background-position: center 72%;
+    }
+
+    .breed-bench {
+      display: grid;
+      gap: 12px;
+    }
+    @media (min-width: 980px) {
+      .breed-bench { grid-template-columns: 1fr 0.92fr 1fr; }
+    }
+    .sample {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      width: 100%;
+      padding: 0;
+      text-align: left;
+      background: transparent;
+      border: 0;
+    }
+    .sample-tag {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 8px 10px;
+      border: 2px solid #3a2f2a;
+      border-bottom: 0;
+      background: #100e0c;
+      color: #c5a46d;
+      letter-spacing: 2px;
+      font-size: 0.78rem;
+    }
+    .sample-tag b { color: #fff; letter-spacing: 1px; font-weight: 400; }
+    .sample .mint-stage { flex: 1; min-height: 180px; }
+    .sample.hot .sample-tag { box-shadow: inset 0 3px 0 #c02627; color: #fff; }
+    .sample.hot .mint-stage { border-color: #c02627; }
+    .sample-empty {
+      min-height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #6b7280;
+      text-align: center;
+      padding: 20px;
+    }
+    .tray-hit {
+      border: 2px solid #3a2f2a;
+      border-top: 0;
+      background: #100e0c;
+      color: #9ca3af;
+      padding: 9px 8px;
+      font-family: 'Alagard', serif;
+      letter-spacing: 1px;
+    }
+    .sample.hot .tray-hit { color: #fff; background: #1a1210; }
+
+    .kennel {
+      border: 2px solid #3a2f2a;
+      background: #14120f;
+      padding: 16px;
+    }
+    .kennel-head {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: end;
+      margin-bottom: 14px;
+    }
+    .kennel-head p { color: #9ca3af; }
+    .kennel-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+      gap: 10px;
+    }
+    .kennel-card {
+      border: 4px solid #c5a46d;
+      outline: 2px solid #3a2f2a;
+      outline-offset: -8px;
+      background: #080604;
+      text-align: left;
+      overflow: hidden;
+    }
+    .kennel-card img {
+      width: 100%;
+      height: auto;
+      display: block;
+      object-fit: contain;
+    }
+    .kennel-card .meta {
+      border-top: 2px solid #3a2f2a;
+      background: #100e0c;
+      padding: 8px 10px 10px;
+    }
+    .kennel-card .meta .g { color: #c5a46d; letter-spacing: 2px; font-size: 0.72rem; }
+    .kennel-card .meta h5 { color: #fff; font-size: 1.15rem; line-height: 1.1; margin-top: 2px; }
+    .kennel-card .meta .st { color: #6b7280; margin-top: 4px; }
+    .kennel-card.on { border-color: #c02627; }
+    .kennel-card.on .st { color: #c02627; }
+
+    .breed-core {
+      border: 2px solid #3a2f2a;
+      background: #14120f;
+      padding: 22px 20px;
+      display: flex;
+      flex-direction: column;
+    }
+    .breed-core h3 {
+      font-family: 'Alagard', serif;
+      font-size: clamp(1.6rem, 2.6vw, 2.1rem);
+      color: #fff;
+      line-height: 1.1;
+      margin: 8px 0 12px;
+    }
+    .recipe {
+      display: grid;
+      gap: 8px;
+      margin: 4px 0 16px;
+    }
+    .recipe li {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      border: 2px solid #3a2f2a;
+      background: #0c0a08;
+      padding: 9px 11px;
+      color: #d7d2c8;
+    }
+    .recipe li span { color: #c5a46d; }
+    .recipe li.ok span { color: #fff; }
+    .recipe li.short { border-color: #7a1c1c; }
+    .breed-core .bind-btn[disabled] {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .reagent-row {
+      display: grid;
+      gap: 12px;
+    }
+    @media (min-width: 900px) {
+      .reagent-row { grid-template-columns: 1fr 1.15fr 0.9fr; }
+    }
+    .reagent {
+      border: 2px solid #3a2f2a;
+      background: #14120f;
+      padding: 18px 16px 16px;
+    }
+    .reagent h4 {
+      font-family: 'Alagard', serif;
+      font-size: 1.45rem;
+      color: #fff;
+      margin: 6px 0 10px;
+    }
+    .reagent .amt {
+      font-family: 'Alagard', serif;
+      font-size: 2.4rem;
+      color: #fff;
+      line-height: 1;
+    }
+    .reagent .amt em {
+      font-style: normal;
+      color: #9ca3af;
+      font-size: 1.15rem;
+    }
+    .reagent p { color: #c9c9c5; line-height: 1.45; margin-top: 10px; }
+    .converter {
+      border: 2px solid #3a2f2a;
+      background: #14120f;
+      padding: 18px 16px 16px;
+    }
+    .converter h4 {
+      font-family: 'Alagard', serif;
+      font-size: 1.45rem;
+      color: #fff;
+      margin: 6px 0 12px;
+    }
+    .convert-io {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 8px;
+      align-items: stretch;
+      margin-bottom: 12px;
+    }
+    .convert-cell {
+      border: 2px solid #3a2f2a;
+      background: #0c0a08;
+      padding: 10px 12px;
+    }
+    .convert-cell .k { color: #6b7280; letter-spacing: 2px; font-size: 0.72rem; }
+    .convert-cell .v { color: #fff; font-size: 1.55rem; line-height: 1.1; margin-top: 4px; }
+    .convert-arrow {
+      align-self: center;
+      color: #c5a46d;
+      font-size: 1.4rem;
+    }
+    .convert-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+    .codex-open .veil {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 62%;
+      background: linear-gradient(to top, #0c0a08 0%, rgba(12,10,8,0.72) 42%, rgba(12,10,8,0) 100%);
+    }
+    .codex-open .words {
+      position: relative;
+      z-index: 1;
+      min-height: 340px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 28px 8px 22px;
+    }
+    .codex-open .info-kicker {
+      color: #c5a46d;
+      margin-bottom: 6px;
+    }
+    .codex-open h2 {
+      font-family: 'Alagard', serif;
+      font-size: clamp(2.4rem, 5vw, 4rem);
+      color: #c02627;
+      line-height: 0.9;
+      text-shadow: 0 3px 0 #000;
+      max-width: 16ch;
+    }
+    .codex-open p {
+      max-width: 34em;
+      margin-top: 10px;
+      font-size: 1.12rem;
+      line-height: 1.5;
+      color: #e8e4dc;
+    }
+    .pet-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    @media (min-width: 800px) {
+      .pet-row { grid-template-columns: repeat(3, 1fr); }
+    }
+    .pet-clip {
+      position: relative;
+      border: 4px solid #c5a46d;
+      outline: 2px solid #3a2f2a;
+      outline-offset: -8px;
+      background: #0c0a08;
+      overflow: hidden;
+    }
+    .pet-clip img {
+      width: 100%;
+      height: auto;
+      object-fit: contain;
+      display: block;
+    }
+    .pet-clip .meta {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: grid;
+      gap: 4px;
+      padding: 56px 14px 14px;
+      background: linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.55) 45%, rgba(0,0,0,0) 100%);
+    }
+    .pet-clip .meta .role { color: #c5a46d; letter-spacing: 2px; font-size: 0.8rem; }
+    .pet-clip .meta h3 {
+      font-family: 'Alagard', serif;
+      font-size: 1.55rem;
+      color: #fff;
+      line-height: 1;
+    }
+    .pet-clip .meta p { color: #e8e4dc; line-height: 1.45; font-size: 0.98rem; }
+    button.pet-clip { width: 100%; text-align: left; }
+    button.pet-clip.active {
+      border-color: #c02627;
+    }
+    .codex-body {
+      padding: 0 28px 8px;
+    }
+    @media (min-width: 1100px) {
+      .codex-body { padding: 0 56px 8px; }
+    }
+    .lore-stack {
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .spread {
+      display: grid;
+      gap: 14px;
+      background: transparent;
+      border: 0;
+      padding: 0;
+    }
+    @media (min-width: 900px) {
+      .spread { grid-template-columns: 1fr 1.1fr; }
+      .spread.flip { grid-template-columns: 1.1fr 1fr; }
+      .spread.flip .spread-copy { order: 2; }
+    }
+    .lore-stack .spread {
+      gap: 20px;
+      align-items: stretch;
+      background: #14120f;
+      border: 2px solid #3a2f2a;
+      padding: 18px;
+    }
+    @media (min-width: 900px) {
+      .lore-stack .spread,
+      .lore-stack .spread.flip {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    .spread-copy {
+      border: 2px solid #3a2f2a;
+      background: #14120f;
+      padding: 26px 24px;
+      display: flex;
+      flex-direction: column;
+    }
+    .lore-stack .spread-copy {
+      border: 0;
+      background: transparent;
+      padding: 6px 8px 4px;
+    }
+    .spread-copy .num {
+      font-family: 'Alagard', serif;
+      color: #c5a46d;
+      letter-spacing: 3px;
+      font-size: 0.85rem;
+    }
+    .spread-copy h3 {
+      font-family: 'Alagard', serif;
+      font-size: clamp(1.6rem, 2.8vw, 2.2rem);
+      color: #fff;
+      line-height: 1.1;
+      margin: 10px 0 12px;
+    }
+    .spread-copy .body {
+      color: #d7d2c8;
+      font-size: 1.05rem;
+      line-height: 1.7;
+      flex: 1;
+    }
+    .spread-mural {
+      position: relative;
+      border: 2px solid #3a2f2a;
+      background: #080604;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .lore-stack .spread-mural {
+      border: 1px solid #2a221c;
+      background: #0a0806;
+      min-height: 0;
+      overflow: hidden;
+    }
+    .spread-mural img {
+      width: 100%;
+      height: auto;
+      max-height: none;
+      object-fit: contain;
+      display: block;
+    }
+    .lore-stack .spread-mural img {
+      width: 100%;
+      height: 100%;
+      max-height: 420px;
+      object-fit: contain;
+    }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+    .chips span {
+      border: 2px solid #3a2f2a;
+      background: #0c0a08;
+      color: #c5a46d;
+      padding: 7px 11px;
+    }
+    .pull {
+      font-family: 'Alagard', serif;
+      font-size: 1.25rem;
+      color: #c5a46d;
+      border: 2px solid #3a2f2a;
+      background: #0c0a08;
+      padding: 10px 12px;
+      margin: 0 0 14px;
+      line-height: 1.35;
+    }
+
+    @media (max-width: 767px) {
+      .sidebar {
+        position: absolute;
+        inset: 0 auto 0 0;
+        width: min(84vw, 300px);
+        transform: translateX(-105%);
+        z-index: 40;
+      }
+      .sidebar.open { transform: translateX(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="relative h-screen w-full overflow-hidden">
+    <img src="assets/dashboard/dashboard-bg.png" alt="" class="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-40">
+
+    <div class="relative z-10 grid h-full grid-cols-12">
+      <!-- SIDEBAR -->
+      <aside id="sidebar" class="sidebar col-span-12 hidden h-full overflow-y-auto border-r-2 border-red-900/30 md:relative md:col-span-2 md:block">
+        <img src="assets/dashboard/nav-bg.png" alt="" class="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-70">
+        <div class="relative flex min-h-full flex-col gap-y-3 p-5">
+          <a href="index.html" class="block" title="Back to landing">
+            <img src="assets/brand/logo.png" alt="Insomnus" class="mx-auto h-28 w-28 object-contain transition hover:scale-110">
+          </a>
+
+          <nav class="grid gap-y-1">
+            <a href="#dashboard" class="side-link active" data-nav="dashboard">Dashboard</a>
+            <a href="#pet-lab" class="side-link" data-nav="pet-lab">Pet Lab</a>
+            <a href="#promo" class="side-link" data-nav="promo">Promo</a>
+
+            <div>
+              <button class="acc-btn" data-acc="games">Games <span>▾</span></button>
+              <div class="acc-panel" data-acc-panel="games">
+                <a href="#guides" class="side-link" data-nav="guides">Endless Mode</a>
+                <a href="#guides" class="side-link" data-nav="guides">Guides</a>
+              </div>
+            </div>
+
+            <div>
+              <button class="acc-btn" data-acc="events">Events <span>▾</span></button>
+              <div class="acc-panel" data-acc-panel="events">
+                <a href="#promo" class="side-link" data-nav="promo">X1 Ecochain Quest</a>
+                <a href="#promo" class="side-link" data-nav="promo">Invite Contest</a>
+                <a href="#pet-lab" class="side-link" data-nav="pet-lab">Pet Lab</a>
+              </div>
+            </div>
+
+            <div>
+              <button class="acc-btn" data-acc="stores">Stores <span>▾</span></button>
+              <div class="acc-panel" data-acc-panel="stores">
+                <a href="#market" class="side-link" data-nav="market">Market</a>
+                <a href="#market" class="side-link" data-nav="market">Transactions</a>
+              </div>
+            </div>
+
+            <div>
+              <button class="acc-btn" data-acc="challenges">Challenges <span>▾</span></button>
+              <div class="acc-panel" data-acc-panel="challenges">
+                <a href="#tasks" class="side-link" data-nav="tasks">Daily Tasks</a>
+                <a href="#tasks" class="side-link" data-nav="tasks">Challenge</a>
+              </div>
+            </div>
+
+            <div>
+              <button class="acc-btn" data-acc="your">Your <span>▾</span></button>
+              <div class="acc-panel" data-acc-panel="your">
+                <a href="#achievements" class="side-link" data-nav="achievements">Achievements</a>
+                <a href="#points" class="side-link" data-nav="points">Points</a>
+                <a href="#inventory" class="side-link" data-nav="inventory">Inventory</a>
+                <a href="#profile" class="side-link" data-nav="profile">Profile</a>
+              </div>
+            </div>
+          </nav>
+
+          <div class="mt-auto flex flex-col gap-4 pt-6">
+            <div class="mx-auto flex w-10/12 items-center justify-between px-2">
+              <a href="https://discord.gg/QYep7k5r8w" target="_blank" class="pixel-font text-xl text-[#c5a46d] hover:text-white">DC</a>
+              <div class="h-6 w-[2px] rounded bg-gray-400/60"></div>
+              <a href="https://x.com/insomnusxyz" target="_blank" class="pixel-font text-xl text-[#c5a46d] hover:text-white">X</a>
+            </div>
+            <a href="index.html" class="btn-outline w-full py-2 text-center">LOG OUT</a>
+          </div>
+        </div>
+      </aside>
+
+      <!-- MAIN -->
+      <div class="col-span-12 flex h-full flex-col overflow-hidden md:col-span-10">
+        <!-- Top bar -->
+        <header class="flex flex-wrap items-center justify-end gap-2 px-3 py-3 md:gap-3 md:px-5">
+          <button id="mobile-nav-btn" class="btn-outline mr-auto px-3 py-2 text-sm md:hidden">MENU</button>
+          <div class="chip"><span class="text-[#c5a46d]">☀</span> 12,480 <span class="uppercase text-white/80">POINTS</span></div>
+          <div class="chip hidden sm:inline-flex"><span class="text-[#c5a46d]">X</span> @insomnusxyz</div>
+          <div class="chip hidden sm:inline-flex"><span class="text-[#c5a46d]">DC</span> sleepless</div>
+          <div class="chip">0x7a…c41d</div>
+          <a href="#inventory" class="btn-outline px-4 py-2" data-nav="inventory">INVENTORY</a>
+          <a href="https://insomnus.xyz/login" target="_blank" class="play-beta-btn px-5 py-2">PLAY GAME</a>
+        </header>
+
+        <main class="flex-1 overflow-y-auto px-4 pb-10 md:px-8">
+
+          <!-- DASHBOARD -->
+          <section id="view-dashboard" class="view active space-y-8">
+            <div class="flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <h1 class="alagard-font text-4xl text-[#c02627] md:text-5xl">Dashboard</h1>
+              </div>
+              <a href="#pet-lab" class="btn-outline px-4 py-2" data-nav="pet-lab">OPEN PET LAB</a>
+            </div>
+
+            <section>
+              <h2 class="alagard-font mb-3 text-2xl text-[#c5a46d]">News</h2>
+              <div id="news" class="news-track">
+                <article class="news-card dungeon-frame">
+                  <img src="assets/banners/drainer-is-here.gif" alt="Drainer is here">
+                  <div class="bottom-corners"></div>
+                </article>
+                <article class="news-card dungeon-frame">
+                  <img src="assets/banners/ecochain-promotion.png" alt="Ecochain promotion">
+                  <div class="bottom-corners"></div>
+                </article>
+                <article class="news-card dungeon-frame">
+                  <img src="assets/banners/pets-coming.gif" alt="Pets coming">
+                  <div class="bottom-corners"></div>
+                </article>
+                <article class="news-card dungeon-frame">
+                  <img src="assets/banners/invite-contest.png" alt="Invite contest">
+                  <div class="bottom-corners"></div>
+                </article>
+                <article class="news-card dungeon-frame">
+                  <img src="assets/banners/somnia-weekly-quest.png" alt="Somnia weekly quest">
+                  <div class="bottom-corners"></div>
+                </article>
+                <article class="news-card dungeon-frame">
+                  <img src="assets/gifs/trials.gif" alt="Trials">
+                  <div class="bottom-corners"></div>
+                </article>
+              </div>
+            </section>
+
+            <section>
+              <h2 class="alagard-font mb-3 text-2xl text-[#c5a46d]">Statistics</h2>
+              <div class="grid grid-cols-1 gap-5 md:grid-cols-3">
+                <article class="stat-card p-6 text-center">
+                  <h3 class="pixel-font text-sm tracking-[2px] text-gray-400">Active Tasks</h3>
+                  <p class="alagard-font mt-1 text-4xl text-white">4</p>
+                </article>
+                <article class="stat-card p-6 text-center">
+                  <h3 class="pixel-font text-sm tracking-[2px] text-gray-400">Total Completed Tasks</h3>
+                  <p class="alagard-font mt-1 text-4xl text-white">27</p>
+                </article>
+                <article class="stat-card p-6 text-center">
+                  <h3 class="pixel-font text-sm tracking-[2px] text-gray-400">Total Achievements</h3>
+                  <p class="alagard-font mt-1 text-4xl text-white">9</p>
+                </article>
+                <article class="stat-card p-6 text-center">
+                  <h3 class="pixel-font text-sm tracking-[2px] text-gray-400">Highest Score</h3>
+                  <p class="alagard-font mt-1 text-4xl text-white">184,220</p>
+                </article>
+                <article class="stat-card p-6 text-center">
+                  <h3 class="pixel-font text-sm tracking-[2px] text-gray-400">Highest Kills</h3>
+                  <p class="alagard-font mt-1 text-4xl text-white">3,041</p>
+                </article>
+                <article class="stat-card p-6 text-center">
+                  <h3 class="pixel-font text-sm tracking-[2px] text-gray-400">Longest Survival</h3>
+                  <p class="alagard-font mt-1 text-4xl text-white">18:42</p>
+                </article>
+              </div>
+            </section>
+
+            <section class="dungeon-frame relative overflow-hidden">
+              <img src="assets/dashboard/invite-bg.png" alt="" class="pointer-events-none absolute inset-0 h-full w-full object-cover object-bottom opacity-40">
+              <div class="bottom-corners"></div>
+              <div class="relative grid grid-cols-1 gap-6 p-6 md:grid-cols-2 md:p-8">
+                <div class="flex flex-col justify-center">
+                  <h2 class="alagard-font text-3xl text-[#c02627]">Invite Friends</h2>
+                  <p class="mt-3 max-w-md text-sm leading-relaxed text-[#d1d5db]">
+                    Share this link with your friends to earn
+                    <span class="text-[#c5a46d]">50 points</span> and
+                    <span class="text-[#c5a46d]">1 game access</span>.
+                    Your friend also gains
+                    <span class="text-[#c5a46d]">25 points</span> and
+                    <span class="text-[#c5a46d]">1 game access</span>.
+                  </p>
+                  <small class="mt-3 italic text-[12px] text-gray-400">
+                    * Invited friend must verify twitter/discord to gain rewards for both sides.
+                  </small>
+                </div>
+                <div class="flex items-center md:justify-end">
+                  <input id="invite-link" type="text" readonly value="https://insomnus.xyz/?ref=SLEEPLESS"
+                    class="h-12 w-full border-2 border-[#c02627] bg-black/40 px-3 text-center alagard-font text-lg tracking-wide text-gray-400 md:w-7/12">
+                  <button id="copy-invite" type="button" class="play-beta-btn h-12 px-5 md:w-3/12">COPY LINK</button>
+                </div>
+              </div>
+            </section>
+
+            <section>
+              <h2 class="alagard-font mb-3 text-2xl text-[#c5a46d]">Global Activities</h2>
+              <div class="dungeon-frame overflow-hidden">
+                <div class="bottom-corners"></div>
+                <div class="max-h-64 overflow-auto">
+                  <table class="activity-table w-full">
+                    <thead>
+                      <tr>
+                        <th>User</th>
+                        <th>Reason</th>
+                        <th>Time</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr><td>voidwalker</td><td>Completed daily task</td><td>2 minutes ago</td></tr>
+                      <tr><td>ashborn</td><td>Unlocked achievement</td><td>8 minutes ago</td></tr>
+                      <tr><td>nightcoil</td><td>Survived 15:00</td><td>14 minutes ago</td></tr>
+                      <tr><td>gloompet</td><td>Claimed invite reward</td><td>21 minutes ago</td></tr>
+                      <tr><td>redlantern</td><td>Highest score updated</td><td>36 minutes ago</td></tr>
+                      <tr><td>sleepless</td><td>Verified Discord</td><td>1 hour ago</td></tr>
+                      <tr><td>craterfox</td><td>Bought market item</td><td>2 hours ago</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </section>
+          </section>
+
+          <!-- OTHER APP SCREENS -->
+          <section id="view-promo" class="view space-y-6">
+            <h1 class="alagard-font text-4xl text-[#c02627]">Promo</h1>
+            <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+              <article class="dungeon-frame overflow-hidden">
+                <img src="assets/banners/ecochain-promotion.png" alt="Ecochain" class="h-48 w-full object-cover">
+                <div class="bottom-corners"></div>
+                <div class="p-5">
+                  <p class="pixel-font text-xs tracking-[3px] text-[#c5a46d]">QUEST</p>
+                  <h3 class="alagard-font text-2xl">X1 Ecochain Quest</h3>
+                  <p class="mt-2 text-sm text-gray-300">Complete chain tasks and claim promo rewards.</p>
+                </div>
+              </article>
+              <article class="dungeon-frame overflow-hidden">
+                <img src="assets/banners/invite-contest.png" alt="Invite" class="h-48 w-full object-cover">
+                <div class="bottom-corners"></div>
+                <div class="p-5">
+                  <p class="pixel-font text-xs tracking-[3px] text-[#c5a46d]">CONTEST</p>
+                  <h3 class="alagard-font text-2xl">Invite Contest</h3>
+                  <p class="mt-2 text-sm text-gray-300">Bring sleepless friends. Climb the invite board.</p>
+                </div>
+              </article>
+            </div>
+          </section>
+
+          <section id="view-pet-lab" class="view space-y-6 pb-4">
+            <div class="flex justify-end gap-2">
+              <button type="button" class="lab-tab active" data-lab-tab="mint">MINT</button>
+              <button type="button" class="lab-tab" data-lab-tab="breed">BREED</button>
+              <button type="button" class="lab-tab" data-lab-tab="showroom">SHOWROOM</button>
+            </div>
+
+            <!-- MINT -->
+            <div id="lab-mint" class="lab-pane active space-y-5">
+
+              <header class="codex-open mint-hero">
+                <div class="hall"></div>
+                <div class="veil"></div>
+                <div class="words">
+                  <h2>Wake a companion</h2>
+                  <p>Pick a pet. Mint it here. Campaign stories live in Showroom — this page is the desk.</p>
+                </div>
+              </header>
+
+              <article class="spread mint-desk">
+                <div class="mint-stage">
+                  <button type="button" class="switcher prev" id="pet-prev" aria-label="Previous pet">‹</button>
+                  <img id="mint-preview" src="assets/lab/pets/gloop.gif" alt="Gloop">
+                  <button type="button" class="switcher next" id="pet-next" aria-label="Next pet">›</button>
+                  <div class="mint-picks" id="pet-dots">
+                    <button type="button" class="mint-pick active" data-pet="gloop">Gloop</button>
+                    <button type="button" class="mint-pick" data-pet="demon-dog">Demon Dog</button>
+                    <button type="button" class="mint-pick" data-pet="heal-bot">Heal Bot</button>
+                  </div>
+                </div>
+                <div class="spread-copy">
+                  <p class="num" id="pet-role">PICKUP UTILITY</p>
+                  <h3 id="pet-name">Gloop</h3>
+                  <p class="pull" id="pet-blurb">Collects XP, health, and armor orbs. Best for smoother tempo and safer orb collection.</p>
+                  <div class="body">
+                    <p>3,000 of this pet. 9,000 Gen 1 total. Non-burnable. Needed later to breed Gen 2 — Gen 1 stays in the wallet.</p>
+                  </div>
+                  <div class="grid grid-cols-1 gap-3 mt-4 sm:grid-cols-2">
+                    <div class="track">
+                      <p class="info-kicker">LEFT IN PIT</p>
+                      <div class="top">
+                        <span class="big" id="pool-left">2,158</span>
+                        <span class="text-[#9ca3af]" id="pool-of">/ 3,000</span>
+                      </div>
+                      <div class="track-bar"><div class="track-fill" id="pool-fill"></div></div>
+                      <p class="sub" id="pool-sub">842 minted · live when mint opens</p>
+                    </div>
+                    <div class="track">
+                      <p class="info-kicker">YOU CAN MINT</p>
+                      <div class="top">
+                        <span class="big" id="you-left">4</span>
+                        <span class="text-[#9ca3af]" id="you-of">/ 5</span>
+                      </div>
+                      <div class="track-bar"><div class="track-fill" id="you-fill"></div></div>
+                      <p class="sub" id="you-sub">You minted 1 of this pet</p>
+                    </div>
+                  </div>
+                  <div class="mt-5 flex flex-wrap items-center gap-3">
+                    <div class="qty-box">
+                      <button type="button" id="qty-minus">1−</button>
+                      <input id="mint-qty" type="text" value="1" readonly>
+                      <button type="button" id="qty-plus">1+</button>
+                    </div>
+                    <button type="button" id="open-review" class="bind-btn">MINT</button>
+                  </div>
+                  <p class="mt-3 text-[12px] text-gray-500">Free rounds: 1 pet total. Guaranteed: 3 of each. Petlist: 10 of each. Price TBA.</p>
+                </div>
+              </article>
+
+              <div class="codex-body space-y-4">
+                <section>
+                  <h2 class="section-title mb-3">Mint activity</h2>
+                  <div class="spread-copy" style="padding:0">
+                    <div class="max-h-72 overflow-auto">
+                      <table class="activity-table w-full">
+                        <thead>
+                          <tr>
+                            <th>Wallet</th>
+                            <th>Pet</th>
+                            <th>Qty</th>
+                            <th>Time</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr><td>0x7a…c41d</td><td>Gloop</td><td>1</td><td>just now</td></tr>
+                          <tr><td>0x3f…91aa</td><td>Demon Dog</td><td>2</td><td>1 min ago</td></tr>
+                          <tr><td>voidwalker</td><td>Heal Bot</td><td>1</td><td>3 min ago</td></tr>
+                          <tr><td>0xb2…e018</td><td>Gloop</td><td>1</td><td>6 min ago</td></tr>
+                          <tr><td>ashborn</td><td>Demon Dog</td><td>1</td><td>9 min ago</td></tr>
+                          <tr><td>0x11…d77c</td><td>Heal Bot</td><td>3</td><td>14 min ago</td></tr>
+                          <tr><td>nightcoil</td><td>Gloop</td><td>1</td><td>21 min ago</td></tr>
+                          <tr><td>0x9c…4402</td><td>Demon Dog</td><td>1</td><td>28 min ago</td></tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </section>
+
+                <section>
+                  <h2 class="section-title mb-3">FAQ</h2>
+                  <div class="faq-grid">
+                    <article class="faq-card">
+                      <span class="n">01</span>
+                      <h4>When can I mint?</h4>
+                      <p>Mint is not open yet. This desk is ready — price and window TBA.</p>
+                    </article>
+                    <article class="faq-card">
+                      <span class="n">02</span>
+                      <h4>What am I minting?</h4>
+                      <p>One Gen 1 pet: Gloop, Demon Dog, or Heal Bot. 3,000 each. 9,000 total.</p>
+                    </article>
+                    <article class="faq-card">
+                      <span class="n">03</span>
+                      <h4>Max per wallet?</h4>
+                      <p>Not locked. Shown as TBA until you set the cap.</p>
+                    </article>
+                    <article class="faq-card">
+                      <span class="n">04</span>
+                      <h4>Where is the lore?</h4>
+                      <p>Tiers, breed, and economy live on Showroom. This page is only the mint desk.</p>
+                    </article>
+                  </div>
+                </section>
+              </div>
+
+              <div class="codex-body space-y-4">
+                <div>
+                  <h2 class="section-title mb-3">Mint phases</h2>
+                  <div class="phase-row-4">
+                    <article class="phase on">
+                      <p class="n">01 · FREE</p>
+                      <h4>Ancient One</h4>
+                      <p>Discord Ancient One. One free pet. Not one of each — pick Gloop, Demon Dog, or Heal Bot.</p>
+                    </article>
+                    <article class="phase">
+                      <p class="n">02 · FREE</p>
+                      <h4>Guaranteed free</h4>
+                      <p>Guaranteed free-claim list. Same rule: one free pet from the three. Not three free pets.</p>
+                    </article>
+                    <article class="phase">
+                      <p class="n">03 · GTD</p>
+                      <h4>Guaranteed</h4>
+                      <p>Cheapest paid round. 3 of each pet — 3 Gloop, 3 Demon Dog, 3 Heal Bot.</p>
+                    </article>
+                    <article class="phase">
+                      <p class="n">04 · LIST</p>
+                      <h4>Petlist</h4>
+                      <p>Petlisted wallets. 10 of each pet — 10 Gloop, 10 Demon Dog, 10 Heal Bot.</p>
+                    </article>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- BREED — pairing bench -->
+            <div id="lab-breed" class="lab-pane space-y-5">
+              <header class="codex-open breed-hero">
+                <div class="hall"></div>
+                <div class="veil"></div>
+                <div class="words">
+                  <h2>The pairing bench</h2>
+                  <p>Two different Gen 1s stay in the wallet. Essence comes from points. One key starts the pair.</p>
+                </div>
+              </header>
+
+              <section class="kennel">
+                <div class="kennel-head">
+                  <div>
+                    <p class="info-kicker">YOUR KENNEL</p>
+                    <h2 class="section-title">Pet inventory</h2>
+                  </div>
+                  <p id="kennel-count">4 Gen 1 · click a pet, then a tray</p>
+                </div>
+                <div class="kennel-row" id="kennel-row"></div>
+              </section>
+
+              <article class="breed-bench">
+                <button type="button" class="sample hot" id="tray-a" data-slot="a">
+                  <div class="sample-tag">SAMPLE A <b id="slot-a-name">Empty</b></div>
+                  <div class="mint-stage" id="slot-a-stage"></div>
+                  <span class="tray-hit" id="tray-a-hit">LOADING HERE</span>
+                </button>
+
+                <div class="breed-core">
+                  <p class="info-kicker">EXPERIMENT · GEN 1 → GEN 2</p>
+                  <h3>Load two samples. Feed the tank. Turn the key.</h3>
+                  <p class="pull">Pets stay. Essence and the key are spent. Pair locks 30 days.</p>
+                  <ul class="recipe">
+                    <li id="need-pair"><span>PAIR</span> <b id="need-pair-txt">two different Gen 1</b></li>
+                    <li id="need-ess"><span>ESSENCE</span> <b id="need-ess-txt">4,280 / 10,000</b></li>
+                    <li id="need-key" class="ok"><span>KEY</span> <b id="need-key-txt">1 / 1</b></li>
+                  </ul>
+                  <button type="button" id="breed-seal" class="bind-btn" disabled>SEALED · AFTER MINT</button>
+                  <p class="note-line mt-3">Gen 2 is born here. It is not minted. G2 → G3 is a later burn experiment.</p>
+                </div>
+
+                <button type="button" class="sample" id="tray-b" data-slot="b">
+                  <div class="sample-tag">SAMPLE B <b id="slot-b-name">Empty</b></div>
+                  <div class="mint-stage" id="slot-b-stage"></div>
+                  <span class="tray-hit" id="tray-b-hit">CLICK TO LOAD HERE</span>
+                </button>
+              </article>
+
+              <div class="reagent-row">
+                <section class="reagent">
+                  <p class="info-kicker">REAGENT</p>
+                  <h4>Essence</h4>
+                  <p class="amt" id="ess-amt">4,280 <em>/ 10,000</em></p>
+                  <div class="track-bar mt-3"><div class="track-fill" id="ess-fill"></div></div>
+                  <p>Play-only. Converted from points. Cannot be bought.</p>
+                </section>
+
+                <section class="converter">
+                  <p class="info-kicker">LAB CONVERTER</p>
+                  <h4>Points → Essence</h4>
+                  <div class="convert-io">
+                    <div class="convert-cell">
+                      <p class="k">POINTS</p>
+                      <p class="v" id="pts-amt">12,480</p>
+                    </div>
+                    <div class="convert-arrow">→</div>
+                    <div class="convert-cell">
+                      <p class="k">YOU GET</p>
+                      <p class="v" id="conv-out">1,000</p>
+                    </div>
+                  </div>
+                  <div class="convert-row">
+                    <div class="qty-box">
+                      <button type="button" id="conv-minus">−</button>
+                      <input id="conv-qty" type="text" value="1000">
+                      <button type="button" id="conv-plus">+</button>
+                    </div>
+                    <button type="button" id="conv-run" class="bind-btn">CONVERT</button>
+                  </div>
+                  <p class="note-line mt-3">Fixed rate on this bench: 1 point → 1 essence. Local preview only.</p>
+                </section>
+
+                <section class="reagent">
+                  <p class="info-kicker">REAGENT</p>
+                  <h4>Key</h4>
+                  <p class="amt" id="key-amt">1</p>
+                  <p>You have <b id="key-have">1</b> ready. Rare drop, or buy one on the market.</p>
+                </section>
+              </div>
+            </div>
+
+            <!-- SHOWROOM — dungeon codex -->
+            <div id="lab-showroom" class="lab-pane space-y-5">
+
+              <header class="codex-open">
+                <div class="hall"></div>
+                <div class="veil"></div>
+                <div class="words">
+                  <h2>The pets, then the system</h2>
+                  <p>Three companions from the community. After mint they become the root of every generation above them.</p>
+                </div>
+              </header>
+
+              <div class="pet-row">
+                <article class="pet-clip">
+                  <img src="assets/lab/pets/gloop.gif" alt="Gloop in a run">
+                  <div class="meta">
+                    <p class="role">PICKUP UTILITY</p>
+                    <h3>Gloop</h3>
+                    <p>Collects XP, health, and armor orbs.</p>
+                  </div>
+                </article>
+                <article class="pet-clip">
+                  <img src="assets/lab/pets/demon-dog.gif" alt="Demon Dog in a run">
+                  <div class="meta">
+                    <p class="role">OFFENSIVE SUPPORT</p>
+                    <h3>Demon Dog</h3>
+                    <p>Attacks a random nearby enemy.</p>
+                  </div>
+                </article>
+                <article class="pet-clip">
+                  <img src="assets/lab/pets/heal-bot.gif" alt="Heal Bot in a run">
+                  <div class="meta">
+                    <p class="role">SUSTAIN SUPPORT</p>
+                    <h3>Heal Bot</h3>
+                    <p>Healing zone after a short delay.</p>
+                  </div>
+                </article>
+              </div>
+
+              <section class="wl-box">
+                <div class="wl-bg"></div>
+                <div class="wl-veil"></div>
+                <div class="wl-inner">
+                  <h3>Are you on the list?</h3>
+                  <div class="wl-stage">
+                    <div class="wl-row">
+                      <input id="wl-input" type="text" placeholder="0x…" autocomplete="off">
+                      <span id="wl-inline" class="wl-inline"></span>
+                      <button type="button" id="wl-check" class="bind-btn">CHECK</button>
+                    </div>
+                  </div>
+                  <div class="wl-counts">
+                    <div class="wl-count wl-gate" data-gate="ancient">
+                      <span class="amt">1</span>
+                      <p class="n">FREE</p>
+                      <h4>Ancient One</h4>
+                    </div>
+                    <div class="wl-count wl-gate" data-gate="freegtd">
+                      <span class="amt">1</span>
+                      <p class="n">FREE</p>
+                      <h4>GTD free</h4>
+                    </div>
+                    <div class="wl-count wl-gate" data-gate="gtd">
+                      <span class="amt">3</span>
+                      <p class="n">EACH PET</p>
+                      <h4>Guaranteed</h4>
+                    </div>
+                    <div class="wl-count wl-gate" data-gate="petlist">
+                      <span class="amt">10</span>
+                      <p class="n">EACH PET</p>
+                      <h4>Petlist</h4>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <div class="lore-stack">
+              <article class="spread">
+                <div class="spread-copy">
+                  <p class="num">I · THE PASS</p>
+                  <h3>Three tiers. Three jobs.</h3>
+                  <p class="pull">Gen 1 never burns. Everything above it does.</p>
+                  <div class="body">
+                    <p>Gen 1 is the access pass — fixed, required to breed, stays in your wallet. Gen 2 is born from it and can be sold. Gen 3+ is the sink: burn three Gen 2s to climb.</p>
+                  </div>
+                  <div class="chips">
+                    <span>Gen 1 fixed</span>
+                    <span>Gen 2 grows</span>
+                    <span>Gen 3 scarce</span>
+                  </div>
+                </div>
+                <div class="spread-mural">
+                  <img src="assets/lab/showroom/01-tiers.gif" alt="Three tiers, three jobs">
+                </div>
+              </article>
+
+              <article class="spread flip">
+                <div class="spread-copy">
+                  <p class="num">II · THE COST</p>
+                  <h3>Essence plus a Key.</h3>
+                  <p class="pull">One input rewards play. One input makes a market.</p>
+                  <div class="body">
+                    <p>Essence is play-only. You cannot buy it. Keys drop rarely, or you buy them from players who farmed them. Gen 1 → 2 keeps both pets. Gen 2 → 3 burns three.</p>
+                  </div>
+                  <div class="chips">
+                    <span>2 Gen 1 + Key + 10k</span>
+                    <span>30-day pair lock</span>
+                    <span>3 Gen 2 burn + 30k</span>
+                  </div>
+                </div>
+                <div class="spread-mural">
+                  <img src="assets/lab/showroom/02-breed.png" alt="What it costs to breed">
+                </div>
+              </article>
+
+              <article class="spread">
+                <div class="spread-copy">
+                  <p class="num">III · NO PET</p>
+                  <h3>The dungeon still pays you.</h3>
+                  <p class="pull">Active players eat. Not only owners.</p>
+                  <div class="body">
+                    <p>Sell keys to holders. Rent a pet, keep the drops. Weekly and monthly pools take most key spend — any wallet can fight for them.</p>
+                  </div>
+                  <div class="chips">
+                    <span>Sell keys</span>
+                    <span>Rent a pet</span>
+                    <span>Open pools</span>
+                  </div>
+                </div>
+                <div class="spread-mural">
+                  <img src="assets/lab/showroom/03-nonholder.png" alt="Non-holder paths">
+                </div>
+              </article>
+
+              <article class="spread flip">
+                <div class="spread-copy">
+                  <p class="num">IV · HOLD</p>
+                  <h3>Own it. Then pick a path.</h3>
+                  <p class="pull">Breed. Upgrade. Or rent and sleep.</p>
+                  <div class="body">
+                    <p>Pair Gen 1s for a tradeable Gen 2. Burn three Gen 2s for a scarcer Gen 3 with better finds and gated nights. Or skip the grind and lease the pet.</p>
+                  </div>
+                  <div class="chips">
+                    <span>Liquidity</span>
+                    <span>Scarcity</span>
+                    <span>Yield</span>
+                  </div>
+                </div>
+                <div class="spread-mural">
+                  <img src="assets/lab/showroom/04-holder.png" alt="Holder paths">
+                </div>
+              </article>
+
+              <article class="spread">
+                <div class="spread-copy">
+                  <p class="num">V · THE SINK</p>
+                  <h3>It does not inflate to dust.</h3>
+                  <p class="pull">Gen 3 eats Gen 2. New gens wake the market.</p>
+                  <div class="body">
+                    <p>Supply grows, then burns. Fresh generations every two to three months start breed demand and key flow again. No single mint has to carry the floor forever.</p>
+                  </div>
+                  <div class="chips">
+                    <span>Real burn</span>
+                    <span>2–3 month drops</span>
+                    <span>Key demand returns</span>
+                  </div>
+                </div>
+                <div class="spread-mural">
+                  <img src="assets/lab/showroom/05-inflation.png" alt="Inflation loop">
+                </div>
+              </article>
+
+              <p class="text-sm text-gray-500">
+                Intended design. Not live-tested at scale.
+                <a href="https://x.com/insomnusxyz/status/2050211623059763345" target="_blank" class="text-[#c02627] hover:underline">May</a>
+                ·
+                <a href="https://x.com/insomnusxyz/status/2088255514048438439" target="_blank" class="text-[#c02627] hover:underline">August</a>
+              </p>
+              </div>
+            </div>
+          </section>
+
+          <section id="view-inventory" class="view space-y-6">
+            <h1 class="alagard-font text-4xl text-[#c02627]">Inventory</h1>
+            <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
+              <article class="stat-card p-4 text-center"><p class="pixel-font text-gray-400">PETS</p><p class="alagard-font text-3xl" id="inv-pet-count">4</p></article>
+              <article class="stat-card p-4 text-center"><p class="pixel-font text-gray-400">ESSENCE</p><p class="alagard-font text-3xl" id="inv-ess">4,280</p></article>
+              <article class="stat-card p-4 text-center"><p class="pixel-font text-gray-400">KEYS</p><p class="alagard-font text-3xl" id="inv-keys">1</p></article>
+              <article class="stat-card p-4 text-center"><p class="pixel-font text-gray-400">POINTS</p><p class="alagard-font text-3xl" id="inv-pts">12,480</p></article>
+            </div>
+            <section class="kennel">
+              <div class="kennel-head">
+                <div>
+                  <p class="info-kicker">YOUR KENNEL</p>
+                  <h2 class="section-title">Pets</h2>
+                </div>
+                <button type="button" class="btn-outline px-4 py-2" id="inv-to-bench">OPEN BENCH</button>
+              </div>
+              <div class="kennel-row" id="inv-kennel-row"></div>
+            </section>
+            <div class="dungeon-frame p-8 text-center text-gray-400">
+              <div class="bottom-corners"></div>
+              <p class="alagard-font text-2xl text-[#c5a46d]">No equipped loadout yet</p>
+              <p class="mt-2 text-sm">Orbs, consumables, and cosmetics stay in this vault.</p>
+            </div>
+          </section>
+
+          <section id="view-profile" class="view space-y-6">
+            <h1 class="alagard-font text-4xl text-[#c02627]">Profile</h1>
+            <div class="dungeon-frame p-6 md:p-8">
+              <div class="bottom-corners"></div>
+              <div class="grid gap-6 md:grid-cols-2">
+                <div>
+                  <p class="pixel-font text-xs tracking-[3px] text-[#c5a46d]">WALLET</p>
+                  <p class="alagard-font text-2xl">0x7a19…c41d</p>
+                  <p class="mt-4 pixel-font text-xs tracking-[3px] text-[#c5a46d]">STATUS</p>
+                  <p>Closed beta • Access granted</p>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                  <div class="chip justify-center">X verified</div>
+                  <div class="chip justify-center">Discord verified</div>
+                  <div class="chip justify-center">12,480 pts</div>
+                  <div class="chip justify-center">9 achievements</div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section id="view-tasks" class="view space-y-6">
+            <h1 class="alagard-font text-4xl text-[#c02627]">Daily Tasks</h1>
+            <div class="space-y-3">
+              <article class="dungeon-frame flex items-center justify-between p-4"><div class="bottom-corners"></div><span>Survive 5 minutes</span><span class="pixel-font text-[#c5a46d]">DONE</span></article>
+              <article class="dungeon-frame flex items-center justify-between p-4"><div class="bottom-corners"></div><span>Kill 100 enemies</span><span class="pixel-font text-[#c02627]">3 / 4</span></article>
+              <article class="dungeon-frame flex items-center justify-between p-4"><div class="bottom-corners"></div><span>Verify socials</span><span class="pixel-font text-[#c5a46d]">DONE</span></article>
+              <article class="dungeon-frame flex items-center justify-between p-4"><div class="bottom-corners"></div><span>Invite 1 friend</span><span class="pixel-font text-gray-500">LOCKED</span></article>
+            </div>
+          </section>
+
+          <section id="view-achievements" class="view space-y-6">
+            <h1 class="alagard-font text-4xl text-[#c02627]">Achievements</h1>
+            <div class="grid grid-cols-2 gap-4 md:grid-cols-3">
+              <article class="stat-card p-5 text-center"><p class="alagard-font text-xl">First Blood</p><p class="text-xs text-gray-400">Unlocked</p></article>
+              <article class="stat-card p-5 text-center"><p class="alagard-font text-xl">Beta Sleeper</p><p class="text-xs text-gray-400">Unlocked</p></article>
+              <article class="stat-card p-5 text-center opacity-50"><p class="alagard-font text-xl">Ancient One</p><p class="text-xs text-gray-400">Locked</p></article>
+              <article class="stat-card p-5 text-center"><p class="alagard-font text-xl">Mob Killer</p><p class="text-xs text-gray-400">Unlocked</p></article>
+              <article class="stat-card p-5 text-center opacity-50"><p class="alagard-font text-xl">Boss Breaker</p><p class="text-xs text-gray-400">Locked</p></article>
+              <article class="stat-card p-5 text-center"><p class="alagard-font text-xl">Somnia Believer</p><p class="text-xs text-gray-400">Unlocked</p></article>
+            </div>
+          </section>
+
+          <section id="view-points" class="view space-y-6">
+            <h1 class="alagard-font text-4xl text-[#c02627]">Points</h1>
+            <article class="stat-card p-8 text-center">
+              <p class="pixel-font text-sm tracking-[3px] text-gray-400">CURRENT BALANCE</p>
+              <p class="alagard-font text-6xl text-[#c5a46d]">12,480</p>
+            </article>
+            <div class="grid gap-4 md:grid-cols-2">
+              <article class="dungeon-frame p-5"><div class="bottom-corners"></div><p class="pixel-font text-[#c5a46d]">BOOST</p><p>Weekend 1.5x — active</p></article>
+              <article class="dungeon-frame p-5"><div class="bottom-corners"></div><p class="pixel-font text-[#c5a46d]">STREAK</p><p>4 days · claim tomorrow</p></article>
+            </div>
+          </section>
+
+          <section id="view-market" class="view space-y-6">
+            <h1 class="alagard-font text-4xl text-[#c02627]">Market</h1>
+            <div class="grid grid-cols-1 gap-5 md:grid-cols-3">
+              <article class="dungeon-frame overflow-hidden">
+                <img src="assets/gifs/modes-bg.gif" class="h-36 w-full object-cover" alt="">
+                <div class="bottom-corners"></div>
+                <div class="p-4"><h3 class="alagard-font text-xl">Somnia Market</h3><p class="text-sm text-gray-400">Chain shop</p></div>
+              </article>
+              <article class="dungeon-frame overflow-hidden">
+                <img src="assets/gifs/horde.gif" class="h-36 w-full object-cover" alt="">
+                <div class="bottom-corners"></div>
+                <div class="p-4"><h3 class="alagard-font text-xl">Mega Market</h3><p class="text-sm text-gray-400">MegaETH shop</p></div>
+              </article>
+              <article class="dungeon-frame overflow-hidden">
+                <img src="assets/partners/x1-ecochain.jpg" class="h-36 w-full object-cover" alt="">
+                <div class="bottom-corners"></div>
+                <div class="p-4"><h3 class="alagard-font text-xl">Single Purpose</h3><p class="text-sm text-gray-400">Keys and passes</p></div>
+              </article>
+            </div>
+          </section>
+
+          <section id="view-guides" class="view space-y-6">
+            <h1 class="alagard-font text-4xl text-[#c02627]">Guides</h1>
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <a class="dungeon-frame block p-5 hover:border-[#c02627]"><div class="bottom-corners"></div><h3 class="alagard-font text-2xl">Gameplay</h3><p class="text-sm text-gray-400">Survive the endless night.</p></a>
+              <a class="dungeon-frame block p-5 hover:border-[#c02627]"><div class="bottom-corners"></div><h3 class="alagard-font text-2xl">Skills</h3><p class="text-sm text-gray-400">Always-on kit. Scales with upgrades.</p></a>
+              <a class="dungeon-frame block p-5 hover:border-[#c02627]"><div class="bottom-corners"></div><h3 class="alagard-font text-2xl">Mobs</h3><p class="text-sm text-gray-400">Know the horde before it knows you.</p></a>
+              <a class="dungeon-frame block p-5 hover:border-[#c02627]"><div class="bottom-corners"></div><h3 class="alagard-font text-2xl">Modes</h3><p class="text-sm text-gray-400">Every run can feel brand new.</p></a>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <div id="sidebar-backdrop" class="fixed inset-0 z-30 hidden bg-black/60 md:hidden"></div>
+
+  <div id="review-sheet" class="review-sheet" role="dialog" aria-modal="true" aria-labelledby="review-title">
+    <div class="dungeon-frame w-full max-w-lg bg-[#0c0a08] p-6">
+      <div class="bottom-corners"></div>
+      <p class="info-kicker">MINT REVIEW · NOTHING SENT</p>
+      <h2 id="review-title" class="alagard-font text-3xl text-white">You selected <span id="review-name">Gloop</span></h2>
+      <ul class="fact-list mt-4">
+        <li id="review-run">Collects XP, health, and armor orbs.</li>
+        <li>Gen 1 · qty <span id="review-qty">1</span> · supply 3,000 of this pet / 9,000 total</li>
+        <li>Non-burnable · tradeable · no rarity tiers</li>
+        <li>Price <strong class="text-[#c5a46d]">TBA</strong> — not locked in this design</li>
+        <li>Mint is <strong class="text-[#c02627]">not live</strong>. No wallet tx from this page.</li>
+      </ul>
+      <p class="mt-4 text-xs text-gray-500">Ancient One / Beta Users get priority when whitelist batches open. This screen is only the review step.</p>
+      <div class="mt-6 flex flex-wrap justify-end gap-2">
+        <button type="button" id="close-review" class="btn-outline px-4 py-2">BACK</button>
+        <button type="button" class="bind-btn opacity-50" disabled>PIT SEALED</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const views = document.querySelectorAll('.view');
+    const navLinks = document.querySelectorAll('[data-nav]');
+    const sidebar = document.getElementById('sidebar');
+    const backdrop = document.getElementById('sidebar-backdrop');
+
+    function showView(name) {
+      const id = 'view-' + name;
+      let found = false;
+      views.forEach((v) => {
+        const on = v.id === id;
+        v.classList.toggle('active', on);
+        if (on) found = true;
+      });
+      if (!found) document.getElementById('view-dashboard').classList.add('active');
+      navLinks.forEach((a) => a.classList.toggle('active', a.getAttribute('data-nav') === name));
+      closeMobile();
+    }
+
+    function route() {
+      const name = (location.hash || '#dashboard').replace('#', '');
+      showView(name);
+    }
+
+    function closeMobile() {
+      sidebar.classList.remove('open');
+      sidebar.classList.add('hidden');
+      sidebar.classList.remove('block');
+      backdrop.classList.add('hidden');
+    }
+
+    function openMobile() {
+      sidebar.classList.add('open', 'block');
+      sidebar.classList.remove('hidden');
+      backdrop.classList.remove('hidden');
+    }
+
+    window.addEventListener('hashchange', route);
+    route();
+
+    document.getElementById('mobile-nav-btn').addEventListener('click', () => {
+      if (sidebar.classList.contains('open')) closeMobile();
+      else openMobile();
+    });
+    backdrop.addEventListener('click', closeMobile);
+
+    document.querySelectorAll('[data-acc]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const panel = document.querySelector('[data-acc-panel="' + btn.dataset.acc + '"]');
+        panel.classList.toggle('open');
+      });
+    });
+
+    const news = document.getElementById('news');
+    if (news) {
+      news.addEventListener('mousemove', (e) => {
+        const rect = news.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const maxScroll = news.scrollWidth - news.clientWidth;
+        news.scrollTo({ left: maxScroll * (x / rect.width), behavior: 'smooth' });
+      });
+    }
+
+    const copyBtn = document.getElementById('copy-invite');
+    const invite = document.getElementById('invite-link');
+    copyBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(invite.value);
+        copyBtn.textContent = 'COPIED';
+      } catch {
+        invite.select();
+        document.execCommand('copy');
+        copyBtn.textContent = 'COPIED';
+      }
+      setTimeout(() => { copyBtn.textContent = 'COPY LINK'; }, 1400);
+    });
+
+    const PET_ORDER = ['gloop', 'demon-dog', 'heal-bot'];
+    const PETS = {
+      gloop: {
+        name: 'Gloop',
+        role: 'PICKUP UTILITY',
+        art: 'assets/lab/pets/gloop.gif',
+        blurb: 'Collects XP, health, and armor orbs. Best for smoother tempo and safer orb collection.',
+        run: [
+          'Collects XP, health, and armor orbs.',
+          'Best for smoother tempo and safer orb collection.'
+        ],
+        total: 3000,
+        minted: 842,
+        youMinted: 1,
+        maxWallet: 5
+      },
+      'demon-dog': {
+        name: 'Demon Dog',
+        role: 'OFFENSIVE SUPPORT',
+        art: 'assets/lab/pets/demon-dog.gif',
+        blurb: 'Attacks a random enemy near the player. Best for extra pressure during regular wave play.',
+        run: [
+          'Attacks a random enemy near the player.',
+          'Best for extra pressure during regular wave play.'
+        ],
+        total: 3000,
+        minted: 1204,
+        youMinted: 2,
+        maxWallet: 5
+      },
+      'heal-bot': {
+        name: 'Heal Bot',
+        role: 'SUSTAIN SUPPORT',
+        art: 'assets/lab/pets/heal-bot.gif',
+        blurb: 'Creates a healing zone after a short delay. The zone lasts for a few seconds. Best for stabilizing runs and recovering under pressure.',
+        run: [
+          'Creates a healing zone after a short delay. The zone lasts for a few seconds.',
+          'Best for stabilizing runs and recovering under pressure.'
+        ],
+        total: 3000,
+        minted: 511,
+        youMinted: 0,
+        maxWallet: 5
+      }
+    };
+
+    let selectedPet = 'gloop';
+    let mintQty = 1;
+
+    function setPet(id) {
+      const pet = PETS[id];
+      if (!pet) return;
+      selectedPet = id;
+      const preview = document.getElementById('mint-preview');
+      if (preview) {
+        preview.src = pet.art;
+        preview.alt = pet.name;
+      }
+      document.getElementById('pet-role').textContent = pet.role;
+      document.getElementById('pet-name').textContent = pet.name;
+      document.getElementById('pet-blurb').textContent = pet.blurb;
+      document.getElementById('review-name').textContent = pet.name;
+      document.getElementById('review-run').textContent = pet.run[0];
+      document.querySelectorAll('.mint-pick').forEach((el) => {
+        el.classList.toggle('active', el.dataset.pet === id);
+      });
+      renderTrack(pet);
+    }
+
+    function renderTrack(pet) {
+      const poolLeft = Math.max(0, pet.total - pet.minted);
+      const youLeft = Math.max(0, pet.maxWallet - pet.youMinted);
+      const poolPct = Math.min(100, (pet.minted / pet.total) * 100);
+      const youPct = pet.maxWallet ? Math.min(100, (pet.youMinted / pet.maxWallet) * 100) : 0;
+      document.getElementById('pool-left').textContent = poolLeft.toLocaleString();
+      document.getElementById('pool-of').textContent = '/ ' + pet.total.toLocaleString();
+      document.getElementById('pool-fill').style.width = poolPct + '%';
+      document.getElementById('pool-sub').textContent = pet.minted.toLocaleString() + ' minted of this pet';
+      document.getElementById('you-left').textContent = String(youLeft);
+      document.getElementById('you-of').textContent = '/ ' + pet.maxWallet;
+      document.getElementById('you-fill').style.width = youPct + '%';
+      document.getElementById('you-sub').textContent = 'You minted ' + pet.youMinted + ' of this pet';
+      if (mintQty > youLeft) mintQty = Math.max(1, youLeft || 1);
+      if (mintQty > poolLeft) mintQty = Math.max(1, poolLeft || 1);
+      renderQty();
+    }
+
+    function stepPet(dir) {
+      const i = PET_ORDER.indexOf(selectedPet);
+      setPet(PET_ORDER[(i + dir + PET_ORDER.length) % PET_ORDER.length]);
+    }
+    document.getElementById('pet-prev').addEventListener('click', () => stepPet(-1));
+    document.getElementById('pet-next').addEventListener('click', () => stepPet(1));
+    document.querySelectorAll('.mint-pick').forEach((btn) => {
+      btn.addEventListener('click', () => setPet(btn.dataset.pet));
+    });
+    setPet('gloop');
+
+    function renderQty() {
+      document.getElementById('mint-qty').value = String(mintQty);
+    }
+    document.getElementById('qty-minus').addEventListener('click', () => {
+      mintQty = Math.max(1, mintQty - 1);
+      renderQty();
+    });
+    document.getElementById('qty-plus').addEventListener('click', () => {
+      const pet = PETS[selectedPet];
+      const cap = Math.min(pet.total - pet.minted, pet.maxWallet - pet.youMinted);
+      mintQty = Math.min(mintQty + 1, Math.max(1, cap));
+      renderQty();
+    });
+
+    document.querySelectorAll('[data-lab-tab]').forEach((tab) => {
+      tab.addEventListener('click', () => {
+        const name = tab.dataset.labTab;
+        document.querySelectorAll('[data-lab-tab]').forEach((t) => t.classList.toggle('active', t === tab));
+        document.getElementById('lab-mint').classList.toggle('active', name === 'mint');
+        document.getElementById('lab-breed').classList.toggle('active', name === 'breed');
+        document.getElementById('lab-showroom').classList.toggle('active', name === 'showroom');
+      });
+    });
+
+    const LAB = {
+      points: 12480,
+      essence: 4280,
+      keys: 1,
+      needEssence: 10000,
+      needKeys: 1,
+      slotA: 'k1',
+      slotB: 'k2',
+      active: 'a',
+      conv: 1000,
+      kennel: [
+        { id: 'k1', type: 'gloop', gen: 1 },
+        { id: 'k2', type: 'demon-dog', gen: 1 },
+        { id: 'k3', type: 'heal-bot', gen: 1 },
+        { id: 'k4', type: 'gloop', gen: 1 }
+      ]
+    };
+
+    function kennelPet(id) {
+      return LAB.kennel.find((p) => p.id === id) || null;
+    }
+
+    function trayLabel(id) {
+      if (LAB.slotA === id) return 'ON TRAY A';
+      if (LAB.slotB === id) return 'ON TRAY B';
+      return 'IN KENNEL';
+    }
+
+    function renderTray(slot) {
+      const id = slot === 'a' ? LAB.slotA : LAB.slotB;
+      const stage = document.getElementById(slot === 'a' ? 'slot-a-stage' : 'slot-b-stage');
+      const nameEl = document.getElementById(slot === 'a' ? 'slot-a-name' : 'slot-b-name');
+      const hit = document.getElementById(slot === 'a' ? 'tray-a-hit' : 'tray-b-hit');
+      const tray = document.getElementById(slot === 'a' ? 'tray-a' : 'tray-b');
+      const pet = kennelPet(id);
+      const spec = pet && PETS[pet.type];
+      if (tray) tray.classList.toggle('hot', LAB.active === slot);
+      if (hit) hit.textContent = LAB.active === slot ? 'LOADING HERE' : 'CLICK TO LOAD HERE';
+      if (!stage) return;
+      if (spec) {
+        stage.innerHTML = '<img src="' + spec.art + '" alt="' + spec.name + '">';
+        if (nameEl) nameEl.textContent = spec.name + ' · Gen ' + pet.gen;
+      } else {
+        stage.innerHTML = '<div class="sample-empty">Empty tray<br>pick from the kennel</div>';
+        if (nameEl) nameEl.textContent = 'Empty';
+      }
+    }
+
+    function renderKennelInto(el) {
+      if (!el) return;
+      el.innerHTML = LAB.kennel.map((pet) => {
+        const spec = PETS[pet.type];
+        const on = trayLabel(pet.id);
+        const lit = on !== 'IN KENNEL';
+        return (
+          '<button type="button" class="kennel-card' + (lit ? ' on' : '') + '" data-kennel="' + pet.id + '">' +
+            '<img src="' + spec.art + '" alt="' + spec.name + '">' +
+            '<div class="meta">' +
+              '<p class="g">GEN ' + pet.gen + '</p>' +
+              '<h5>' + spec.name + '</h5>' +
+              '<p class="st">' + on + '</p>' +
+            '</div>' +
+          '</button>'
+        );
+      }).join('');
+    }
+
+    function renderLab() {
+      renderTray('a');
+      renderTray('b');
+      renderKennelInto(document.getElementById('kennel-row'));
+      renderKennelInto(document.getElementById('inv-kennel-row'));
+
+      const count = document.getElementById('kennel-count');
+      if (count) count.textContent = LAB.kennel.length + ' Gen 1 · click a pet to load the selected tray';
+
+      const a = kennelPet(LAB.slotA);
+      const b = kennelPet(LAB.slotB);
+      const pairOk = a && b && a.type !== b.type;
+      const essOk = LAB.essence >= LAB.needEssence;
+      const keyOk = LAB.keys >= LAB.needKeys;
+      const pairEl = document.getElementById('need-pair');
+      const essEl = document.getElementById('need-ess');
+      const keyEl = document.getElementById('need-key');
+      if (pairEl) pairEl.classList.toggle('ok', pairOk);
+      if (pairEl) pairEl.classList.toggle('short', !pairOk);
+      if (essEl) essEl.classList.toggle('ok', essOk);
+      if (essEl) essEl.classList.toggle('short', !essOk);
+      if (keyEl) keyEl.classList.toggle('ok', keyOk);
+      if (keyEl) keyEl.classList.toggle('short', !keyOk);
+      const pairTxt = document.getElementById('need-pair-txt');
+      if (pairTxt) {
+        if (pairOk) pairTxt.textContent = PETS[a.type].name + ' + ' + PETS[b.type].name;
+        else if (a && b && a.type === b.type) pairTxt.textContent = 'need two different pets';
+        else pairTxt.textContent = 'two different Gen 1';
+      }
+      const essTxt = document.getElementById('need-ess-txt');
+      const keyTxt = document.getElementById('need-key-txt');
+      if (essTxt) essTxt.textContent = LAB.essence.toLocaleString() + ' / ' + LAB.needEssence.toLocaleString();
+      if (keyTxt) keyTxt.textContent = LAB.keys + ' / ' + LAB.needKeys;
+
+      const essAmt = document.getElementById('ess-amt');
+      if (essAmt) essAmt.innerHTML = LAB.essence.toLocaleString() + ' <em>/ ' + LAB.needEssence.toLocaleString() + '</em>';
+      const essFill = document.getElementById('ess-fill');
+      if (essFill) essFill.style.width = Math.min(100, (LAB.essence / LAB.needEssence) * 100) + '%';
+      const ptsAmt = document.getElementById('pts-amt');
+      if (ptsAmt) ptsAmt.textContent = LAB.points.toLocaleString();
+      const keyAmt = document.getElementById('key-amt');
+      const keyHave = document.getElementById('key-have');
+      if (keyAmt) keyAmt.textContent = String(LAB.keys);
+      if (keyHave) keyHave.textContent = String(LAB.keys);
+
+      const invPet = document.getElementById('inv-pet-count');
+      const invEss = document.getElementById('inv-ess');
+      const invKeys = document.getElementById('inv-keys');
+      const invPts = document.getElementById('inv-pts');
+      if (invPet) invPet.textContent = String(LAB.kennel.length);
+      if (invEss) invEss.textContent = LAB.essence.toLocaleString();
+      if (invKeys) invKeys.textContent = String(LAB.keys);
+      if (invPts) invPts.textContent = LAB.points.toLocaleString();
+
+      LAB.conv = Math.max(1, Math.min(LAB.conv, Math.max(1, LAB.points)));
+      const convQty = document.getElementById('conv-qty');
+      const convOut = document.getElementById('conv-out');
+      if (convQty) convQty.value = String(LAB.conv);
+      if (convOut) convOut.textContent = LAB.conv.toLocaleString();
+    }
+
+    function setActiveTray(slot) {
+      LAB.active = slot;
+      renderLab();
+    }
+
+    function loadKennelPet(id) {
+      const pet = kennelPet(id);
+      if (!pet) return;
+      if (LAB.active === 'a') {
+        if (LAB.slotB === id) LAB.slotB = LAB.slotA;
+        LAB.slotA = id;
+      } else {
+        if (LAB.slotA === id) LAB.slotA = LAB.slotB;
+        LAB.slotB = id;
+      }
+      renderLab();
+    }
+
+    function openBreed() {
+      location.hash = 'pet-lab';
+      document.querySelectorAll('[data-lab-tab]').forEach((t) => t.classList.toggle('active', t.dataset.labTab === 'breed'));
+      document.getElementById('lab-mint').classList.remove('active');
+      document.getElementById('lab-breed').classList.add('active');
+      document.getElementById('lab-showroom').classList.remove('active');
+    }
+
+    document.getElementById('tray-a').addEventListener('click', () => setActiveTray('a'));
+    document.getElementById('tray-b').addEventListener('click', () => setActiveTray('b'));
+    document.addEventListener('click', (e) => {
+      const card = e.target.closest('[data-kennel]');
+      if (!card) return;
+      if (card.closest('#inv-kennel-row')) {
+        loadKennelPet(card.dataset.kennel);
+        openBreed();
+        return;
+      }
+      loadKennelPet(card.dataset.kennel);
+    });
+    const invBench = document.getElementById('inv-to-bench');
+    if (invBench) invBench.addEventListener('click', openBreed);
+
+    function clampConv() {
+      const n = parseInt(String(LAB.conv), 10);
+      LAB.conv = Number.isFinite(n) ? Math.max(1, Math.min(n, Math.max(1, LAB.points))) : 1;
+    }
+    const convQtyEl = document.getElementById('conv-qty');
+    const convMinus = document.getElementById('conv-minus');
+    const convPlus = document.getElementById('conv-plus');
+    const convRun = document.getElementById('conv-run');
+    if (convQtyEl) {
+      convQtyEl.addEventListener('input', () => {
+        LAB.conv = parseInt(convQtyEl.value.replace(/[^\d]/g, ''), 10) || 1;
+        clampConv();
+        renderLab();
+      });
+    }
+    if (convMinus) convMinus.addEventListener('click', () => {
+      LAB.conv = Math.max(1, LAB.conv - 100);
+      renderLab();
+    });
+    if (convPlus) convPlus.addEventListener('click', () => {
+      LAB.conv = Math.min(LAB.points, LAB.conv + 100);
+      renderLab();
+    });
+    if (convRun) convRun.addEventListener('click', () => {
+      clampConv();
+      const take = Math.min(LAB.conv, LAB.points);
+      if (take < 1) return;
+      LAB.points -= take;
+      LAB.essence += take;
+      renderLab();
+    });
+    renderLab();
+
+
+    const WL_PHASES = {
+      ancient: { id: 'ancient', title: 'Ancient One', body: 'One free pet. Pick one of the three.' },
+      freegtd: { id: 'freegtd', title: 'GTD free', body: 'One free pet from the three.' },
+      gtd: { id: 'gtd', title: 'Guaranteed', body: '3 of each pet.' },
+      petlist: { id: 'petlist', title: 'Petlist', body: '10 of each pet.' }
+    };
+    const WL_DEMO = [
+      { id: 'ancient', keys: ['ancient', 'ancientone'] },
+      { id: 'freegtd', keys: ['free', 'gtdfree', 'guaranteed free'] },
+      { id: 'gtd', keys: ['gtd', 'guaranteed'] },
+      { id: 'petlist', keys: ['petlist', 'petlisted'] }
+    ];
+    // Paste your published CSV url here (File → Share → Publish to web → CSV).
+    // Sheet columns: address | phase
+    // phase = ancient | freegtd | gtd | petlist
+    const WL_SHEET_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTFVpaSKHpW5zLvfGiTKHW0pur-x1YrCyZyA1S3qJ93bb0RFi4ZJJvlzLqXOoJF3fu8LBZ0SAKaJq5x/pub?output=csv';
+    const sheetWl = new Map([
+      ['0xc4aef6a8bcbc75c3eaa9daa10008ae9b3bfa6a05d', 'petlist']
+    ]);
+
+    function phaseFromLabel(raw) {
+      const s = String(raw || '').trim().toLowerCase();
+      if (!s) return '';
+      if (s.includes('ancient') || s === 'ao' || s === '01') return 'ancient';
+      if (s.includes('free') || s === 'freegtd' || s === 'gtd free' || s === '02') return 'freegtd';
+      if (s.includes('pet') || s.includes('list') || s === '04') return 'petlist';
+      if (s.includes('gtd') || s.includes('guaranteed') || s === '03') return 'gtd';
+      return '';
+    }
+
+    function parseCsv(text) {
+      return text.split(/\r?\n/).map((line) => {
+        const out = [];
+        let cur = '';
+        let q = false;
+        for (let i = 0; i < line.length; i++) {
+          const ch = line[i];
+          if (ch === '"') { q = !q; continue; }
+          if (ch === ',' && !q) { out.push(cur); cur = ''; continue; }
+          cur += ch;
+        }
+        out.push(cur);
+        return out.map((c) => c.trim());
+      }).filter((r) => r.some(Boolean));
+    }
+
+    async function loadSheetWl() {
+      if (!WL_SHEET_CSV) return;
+      try {
+        const res = await fetch(WL_SHEET_CSV + (WL_SHEET_CSV.includes('?') ? '&' : '?') + 't=' + Date.now());
+        if (!res.ok) return;
+        const rows = parseCsv(await res.text());
+        if (!rows.length) return;
+        const head = rows[0].map((h) => h.toLowerCase());
+        const ai = head.findIndex((h) => h.includes('address') || h.includes('wallet') || h === '0x');
+        const pi = head.findIndex((h) => h.includes('phase') || h.includes('round') || h.includes('list') || h.includes('tier'));
+        const start = ai >= 0 ? 1 : 0;
+        const aCol = ai >= 0 ? ai : 0;
+        const pCol = pi >= 0 ? pi : 1;
+        rows.slice(start).forEach((r) => {
+          const addr = String(r[aCol] || '').trim().toLowerCase();
+          const phase = phaseFromLabel(r[pCol]);
+          if (addr && phase) sheetWl.set(addr, phase);
+        });
+      } catch (e) {}
+    }
+
+    const wlBtn = document.getElementById('wl-check');
+    const wlInput = document.getElementById('wl-input');
+    const wlInline = document.getElementById('wl-inline');
+    if (wlBtn && wlInput && wlInline) {
+      loadSheetWl();
+      function runWl() {
+        const q = wlInput.value.trim().toLowerCase();
+        document.querySelectorAll('.wl-gate').forEach((el) => el.classList.remove('lit'));
+        if (!q) {
+          wlInline.classList.remove('on', 'hit');
+          wlInline.textContent = '';
+          wlInput.focus();
+          return;
+        }
+        let phaseId = sheetWl.get(q);
+        if (!phaseId) {
+          const demo = WL_DEMO.find((row) => row.keys.some((k) => q.includes(k)));
+          phaseId = demo && demo.id;
+        }
+        const hit = phaseId && WL_PHASES[phaseId];
+        wlInline.classList.add('on');
+        wlInline.classList.toggle('hit', Boolean(hit));
+        wlInline.textContent = hit ? hit.title : 'Not listed';
+        if (hit) {
+          document.querySelectorAll('.wl-gate').forEach((el) => {
+            el.classList.toggle('lit', el.dataset.gate === hit.id);
+          });
+        }
+      }
+      wlBtn.addEventListener('click', runWl);
+      wlInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') runWl(); });
+    }
+
+    const sheet = document.getElementById('review-sheet');
+    document.getElementById('open-review').addEventListener('click', () => {
+      document.getElementById('review-qty').textContent = String(mintQty);
+      sheet.classList.add('open');
+    });
+    document.getElementById('close-review').addEventListener('click', () => sheet.classList.remove('open'));
+    sheet.addEventListener('click', (e) => { if (e.target === sheet) sheet.classList.remove('open'); });
+  </script>
+</body>
+</html>
