@@ -1,0 +1,1489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>INSOMNUS • Mint</title>
+  <link rel="icon" type="image/png" href="assets/brand/logo.png">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @font-face {
+      font-family: 'Alagard';
+      src: url('assets/fonts/alagard.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+    :root {
+      --bg: #0c0a08;
+      --accent: #c02627;
+      --gold: #c5a46d;
+      --rh: #ccff00;
+      --text: #c9c9c5;
+      --line: #3a2f2a;
+    }
+    html, body {
+      min-height: 100%;
+      background: #0c0a08;
+      color: var(--text);
+      font-family: 'Alagard', serif;
+      cursor: url('assets/cursors/cursor.png') 16 16, crosshair !important;
+    }
+    a, button, .cursor-pointer { cursor: url('assets/cursors/cursor-click.png') 16 16, pointer !important; }
+    img { -webkit-user-drag: none; }
+
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-track { background: #12100e; border: 1px solid #3a2f2a; }
+    ::-webkit-scrollbar-thumb { background: #c02627; border: 1px solid #3a2f2a; }
+    html { scrollbar-width: thin; scrollbar-color: #c02627 #12100e; }
+
+    .shell {
+      width: min(1040px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 8px 0 48px;
+    }
+    .mint-wrap {
+      width: min(1320px, calc(100% - 24px));
+      margin: 16px auto 8px;
+      position: relative;
+      z-index: 2;
+    }
+    .pixel { image-rendering: pixelated; }
+
+    .dungeon-frame {
+      position: relative;
+      border: 3px solid var(--line);
+      background: #12100e;
+    }
+    .dungeon-frame::before,
+    .dungeon-frame::after,
+    .dungeon-frame .bottom-corners::before,
+    .dungeon-frame .bottom-corners::after {
+      content: '';
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      z-index: 3;
+      pointer-events: none;
+    }
+    .dungeon-frame::before { top: -3px; left: -3px; background-image: url('assets/frames/corner-top-left.webp'); }
+    .dungeon-frame::after { top: -3px; right: -3px; background-image: url('assets/frames/corner-top-right.webp'); }
+    .dungeon-frame .bottom-corners::before { bottom: -3px; left: -3px; background-image: url('assets/frames/corner-bottom-left.webp'); }
+    .dungeon-frame .bottom-corners::after { bottom: -3px; right: -3px; background-image: url('assets/frames/corner-bottom-right.webp'); }
+
+    #header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(12,10,8,0.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid #3a2f2a;
+    }
+    #header.scrolled { box-shadow: 0 2px 20px rgba(0,0,0,0.6); }
+    .nav-link {
+      padding: 4px 10px;
+      border: 1px solid #3a2f2a;
+      font-family: 'Alagard', serif;
+      letter-spacing: 1px;
+      color: #c9c9c5;
+    }
+    .nav-link:hover {
+      border-color: #c02627;
+      color: #fff;
+      background: rgba(192, 38, 39, 0.08);
+    }
+
+    .topbar {
+      width: min(1440px, calc(100% - 40px));
+      margin: 0 auto;
+      height: 64px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+      align-items: center;
+      column-gap: 12px;
+    }
+    .topbar .brand {
+      justify-self: start;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+    .topbar .brand span {
+      font-size: 1.25rem;
+      letter-spacing: 4px;
+      color: #c5a46d;
+    }
+    .topbar .nav-links {
+      justify-self: center;
+      display: none;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.875rem;
+      letter-spacing: 0.1em;
+    }
+    @media (min-width: 768px) {
+      .topbar .nav-links { display: flex; }
+    }
+    .wallet-btn {
+      justify-self: end;
+      box-sizing: border-box;
+      width: 220px;
+      font-family: 'Alagard', serif;
+      letter-spacing: 2px;
+      background: #c02627;
+      border: 2px solid #3a2f2a;
+      box-shadow: 0 4px 0 #000;
+      color: #fff;
+      padding: 10px 12px;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .wallet-btn:hover { background: #d23b3b; }
+    .wallet-btn.on {
+      background: #14120f;
+      color: #c5a46d;
+    }
+
+    .banner {
+      position: relative;
+      min-height: min(34vh, 280px);
+      overflow: hidden;
+      border-bottom: 1px solid #3a2f2a;
+    }
+    .banner img.hero {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      image-rendering: pixelated;
+      filter: grayscale(1) contrast(1.12) brightness(0.92);
+    }
+    .banner .veil {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(to top, #0c0a08 0%, rgba(204, 255, 0, 0.16) 42%, rgba(204, 255, 0, 0.07) 100%),
+        radial-gradient(circle at center, transparent 30%, rgba(204, 255, 0, 0.1) 100%);
+    }
+    .banner .words {
+      position: relative;
+      z-index: 1;
+      min-height: min(34vh, 280px);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      width: min(1440px, calc(100% - 20px));
+      margin: 0 auto;
+      padding: 20px 0 36px;
+    }
+    .banner h1 {
+      font-size: clamp(2.4rem, 5vw, 4rem);
+      color: #c02627;
+      line-height: 0.9;
+      text-shadow: 0 3px 0 #000;
+      max-width: 16ch;
+    }
+    .banner p {
+      max-width: 34em;
+      margin-top: 10px;
+      font-size: 1.12rem;
+      line-height: 1.5;
+      color: #e8e4dc;
+    }
+
+    .mint-desk {
+      display: grid;
+      gap: 0;
+      align-items: stretch;
+      border: 2px solid #3a2f2a;
+      background: #14120f;
+      position: relative;
+    }
+    .mint-desk.sealed .mint-stage,
+    .mint-desk.sealed .desk {
+      filter: blur(8px);
+      pointer-events: none;
+      user-select: none;
+    }
+    .mint-seal {
+      display: none;
+      position: absolute;
+      inset: 0;
+      z-index: 8;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      text-align: center;
+      padding: 24px;
+      background: rgba(12, 10, 8, 0.55);
+    }
+    .mint-desk.sealed .mint-seal { display: flex; }
+    .mint-seal .k {
+      color: #c5a46d;
+      letter-spacing: 3px;
+      font-size: 0.75rem;
+    }
+    .mint-seal h2 {
+      color: #fff;
+      font-size: clamp(1.8rem, 3vw, 2.6rem);
+      margin: 10px 0 16px;
+    }
+    .mint-seal .count {
+      color: #c02627;
+      font-size: clamp(2.2rem, 5vw, 3.4rem);
+      letter-spacing: 4px;
+      line-height: 1;
+      min-height: 1.1em;
+    }
+    .mint-seal .hint {
+      margin-top: 8px;
+      color: #9ca3af;
+      font-size: 0.9rem;
+    }
+    .mint-seal .socials {
+      display: flex;
+      gap: 10px;
+      margin-top: 22px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .mint-seal .socials a {
+      border: 2px solid #3a2f2a;
+      background: #0c0a08;
+      color: #c5a46d;
+      letter-spacing: 2px;
+      padding: 10px 18px;
+    }
+    .mint-seal .socials a:hover {
+      border-color: #c02627;
+      color: #fff;
+    }
+    @media (min-width: 900px) {
+      .mint-desk { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); }
+    }
+    .mint-stage {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      height: 100%;
+      border: 0;
+      outline: 0;
+      background: #080604;
+      user-select: none;
+      -webkit-user-select: none;
+      pointer-events: none;
+    }
+    .mint-stage .reel {
+      position: relative;
+      flex: 1 1 auto;
+      min-height: 300px;
+      margin: 0;
+      border: 4px solid #c5a46d;
+      background: #080604;
+      overflow: hidden;
+      box-sizing: border-box;
+    }
+    @media (min-width: 900px) {
+      .mint-stage .reel { min-height: 0; }
+    }
+    .mint-stage .sizer { display: none; }
+    .mint-stage .slide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.7s ease;
+    }
+    .mint-stage .slide.on { opacity: 1; }
+    .mint-stage .slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+    .mint-stage .reel-tag {
+      position: relative;
+      z-index: 2;
+      flex-shrink: 0;
+      text-align: center;
+      padding: 8px;
+      border-top: 0;
+      background: #100e0c;
+      color: #c5a46d;
+      letter-spacing: 2px;
+    }
+    #confetti {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 80;
+      pointer-events: none;
+      display: none;
+    }
+    #confetti.on { display: block; }
+
+    .desk {
+      border: 0;
+      border-left: 2px solid #3a2f2a;
+      background: #14120f;
+      padding: 18px 20px 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+    }
+    @media (max-width: 899px) {
+      .desk { border-left: 0; border-top: 2px solid #3a2f2a; }
+    }
+    .desk .num { color: #c5a46d; letter-spacing: 3px; font-size: 0.95rem; }
+    .desk h2 {
+      font-size: clamp(1.7rem, 2.8vw, 2.3rem);
+      color: #fff;
+      line-height: 1.1;
+      margin: 4px 0 8px;
+    }
+    .rounds {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin: 0 0 10px;
+    }
+    .round {
+      border: 2px solid #3a2f2a;
+      background: #0c0a08;
+      padding: 12px 12px 10px;
+    }
+    .round.now { border-color: #c02627; }
+    .round .k { color: #c5a46d; letter-spacing: 2px; font-size: 0.72rem; }
+    .round h3 { color: #fff; font-size: 1.35rem; margin: 6px 0 4px; line-height: 1.1; }
+    .round .cap { color: #9ca3af; font-size: 0.9rem; }
+    .round .clock {
+      margin-top: 8px;
+      color: #c02627;
+      font-size: 1.55rem;
+      line-height: 1;
+    }
+    .round.next .clock { color: #c5a46d; font-size: 1.15rem; }
+    .info-kicker { letter-spacing: 2.5px; font-size: 11px; color: #c5a46d; }
+    .track {
+      border: 2px solid #3a2f2a;
+      background: #0c0a08;
+      padding: 12px;
+    }
+    .track .top { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 8px; align-items: baseline; }
+    .track .big {
+      font-size: 1.7rem;
+      color: #fff;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+      min-width: 4ch;
+      display: inline-block;
+    }
+    .track .of {
+      color: #9ca3af;
+      font-variant-numeric: tabular-nums;
+      min-width: 5.5ch;
+      display: inline-block;
+      text-align: right;
+    }
+    .track-bar { height: 8px; background: #1a1612; border: 1px solid #3a2f2a; }
+    .track-fill { height: 100%; background: #c02627; width: 0; }
+    .track .sub {
+      margin-top: 6px;
+      color: #9ca3af;
+      font-size: 0.85rem;
+      line-height: 1.2;
+      height: 1.2em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .qty-box {
+      display: flex;
+      align-items: center;
+      border: 2px solid var(--line);
+      background: rgba(0,0,0,0.45);
+    }
+    .qty-box button {
+      width: 40px;
+      height: 42px;
+      font-family: 'Alagard', serif;
+      font-size: 1.3rem;
+      color: #c5a46d;
+    }
+    .qty-box button:hover { color: #fff; background: rgba(192,38,39,0.15); }
+    .qty-box input {
+      width: 52px;
+      height: 42px;
+      text-align: center;
+      background: transparent;
+      border-left: 2px solid var(--line);
+      border-right: 2px solid var(--line);
+      color: #fff;
+      font-family: 'Alagard', serif;
+      font-size: 1.3rem;
+    }
+    .bind-btn {
+      font-family: 'Alagard', serif;
+      letter-spacing: 2px;
+      background: #c02627;
+      border: 2px solid #3a2f2a;
+      box-shadow: 0 4px 0 #000;
+      color: #fff;
+      padding: 14px 32px;
+      font-size: 1.2rem;
+    }
+    .bind-btn:hover { background: #d23b3b; }
+    .bind-btn:disabled { opacity: 0.5; }
+    .pay {
+      border: 2px solid #3a2f2a;
+      background: #0c0a08;
+      padding: 4px 12px 6px;
+      min-width: 8.2rem;
+    }
+    .pay .k { color: #c5a46d; letter-spacing: 2px; font-size: 0.65rem; }
+    .pay .amt {
+      color: #fff;
+      font-size: 1.15rem;
+      line-height: 1.15;
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+    .lock-line {
+      margin: 10px 0 0;
+      border: 2px solid #3a2f2a;
+      background: #0c0a08;
+      padding: 8px 10px;
+      color: #c02627;
+      letter-spacing: 1px;
+      font-size: 0.85rem;
+      line-height: 1.2;
+      height: 2.45em;
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .lock-line.open { color: #c5a46d; }
+    .note {
+      margin-top: 8px;
+      color: #6b7280;
+      font-size: 0.9rem;
+      line-height: 1.35;
+      min-height: 2.7em;
+    }
+    .phase .eth { color: #c5a46d; margin-top: 8px; }
+
+    .section-title {
+      font-size: 1.45rem;
+      color: #c5a46d;
+      margin-bottom: 10px;
+    }
+    .activity {
+      border: 2px solid #3a2f2a;
+      background: #14120f;
+    }
+    .activity-table { width: 100%; }
+    .activity-table th {
+      letter-spacing: 2px;
+      color: #6b7280;
+      font-weight: 400;
+      text-align: left;
+      padding: 8px 12px;
+      font-size: 0.95rem;
+    }
+    .activity-table td {
+      padding: 10px 12px;
+      border-top: 1px solid rgba(58,47,42,0.7);
+      font-size: 1.15rem;
+    }
+    .activity-table tr:hover td { background: rgba(192,38,39,0.06); }
+
+    .faq-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    @media (min-width: 800px) {
+      .faq-grid { grid-template-columns: 1fr 1fr; }
+    }
+    .faq-card {
+      border: 2px solid #3a2f2a;
+      background: #14120f;
+      padding: 20px 18px 18px;
+      min-height: 140px;
+    }
+    .faq-card:hover { border-color: #c02627; }
+    .faq-card .n { display: block; color: #c5a46d; letter-spacing: 3px; font-size: 0.75rem; margin-bottom: 8px; }
+    .faq-card h4 { font-size: 1.35rem; color: #fff; line-height: 1.2; margin-bottom: 10px; }
+    .faq-card p { color: #c9c9c5; line-height: 1.55; }
+    .phase-row-4 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    @media (min-width: 900px) {
+      .phase-row-4 { grid-template-columns: repeat(4, 1fr); }
+    }
+    .phase {
+      border: 2px solid #3a2f2a;
+      background: #14120f;
+      padding: 18px 16px;
+    }
+    .phase.on { border-color: #c02627; }
+    .phase .n { color: #c5a46d; letter-spacing: 2px; font-size: 0.8rem; }
+    .phase h4 { font-size: 1.4rem; color: #fff; margin: 6px 0 8px; }
+    .phase p { color: #c9c9c5; line-height: 1.45; }
+    .phase.lit { border-color: #c02627; background: #1a1010; }
+    .elig {
+      margin: 18px 0 22px;
+      border: 2px solid #3a2f2a;
+      background: #0c0a08;
+    }
+    .elig-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+    }
+    @media (min-width: 800px) {
+      .elig-grid { grid-template-columns: repeat(5, 1fr); }
+      .elig-row {
+        grid-template-columns: 1fr;
+        text-align: center;
+        border-top: 0 !important;
+        padding: 14px 10px;
+        gap: 4px;
+      }
+      .elig-row + .elig-row { border-left: 2px solid #3a2f2a; }
+    }
+    .elig-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      min-height: 42px;
+      border-bottom: 2px solid #3a2f2a;
+    }
+    .elig-head .k { color: #c5a46d; letter-spacing: 2px; font-size: 0.72rem; white-space: nowrap; }
+    .elig-head .st {
+      color: #9ca3af;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-align: right;
+      min-width: 0;
+    }
+    .elig-head .st.hit { color: #c5a46d; }
+    .elig-head .st.miss { color: #c02627; }
+    .elig-row {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr auto;
+      gap: 8px;
+      align-items: center;
+      padding: 10px 12px;
+      border-top: 1px solid rgba(58,47,42,0.7);
+      color: #9ca3af;
+    }
+    .elig-row.lit {
+      color: #fff;
+      background: rgba(192,38,39,0.12);
+    }
+    .elig-row .nm { color: inherit; }
+    .elig-row .lim { color: #c5a46d; font-size: 0.85rem; }
+    .elig-row .tag {
+      letter-spacing: 1px;
+      font-size: 0.75rem;
+      color: #6b7280;
+      min-width: 8ch;
+      display: inline-block;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .elig-row.lit .tag { color: #c02627; }
+
+    .bag {
+      margin: 0 0 22px;
+      border: 2px solid #3a2f2a;
+      background: #0c0a08;
+    }
+    .bag-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: baseline;
+      padding: 8px 12px;
+      border-bottom: 2px solid #3a2f2a;
+      min-height: 36px;
+    }
+    .bag-meta .n { color: #fff; }
+    .bag-meta .n b { color: #c5a46d; }
+    .bag-meta .eta {
+      color: #c02627;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-width: 0;
+      text-align: right;
+    }
+    .bag-meta .eta.open { color: #c5a46d; }
+    .bag-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+      gap: 10px;
+      padding: 12px;
+      min-height: 176px;
+    }
+    .bag-empty {
+      grid-column: 1 / -1;
+      color: #6b7280;
+      padding: 28px 8px;
+      text-align: center;
+    }
+    .bag-card .stage {
+      border: 4px solid #c5a46d;
+      background: #080604;
+      aspect-ratio: 1;
+      overflow: hidden;
+    }
+    .bag-card .stage img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      image-rendering: pixelated;
+      display: block;
+    }
+    .bag-card .nm {
+      margin-top: 8px;
+      color: #fff;
+    }
+    .bag-card .lk {
+      margin-top: 2px;
+      color: #c02627;
+      letter-spacing: 2px;
+      font-size: 0.72rem;
+    }
+    .bag-card.open .lk { color: #c5a46d; }
+
+    .site-foot {
+      position: relative;
+      overflow: hidden;
+      margin-top: 32px;
+      border-top: 1px solid #3a2f2a;
+    }
+    .site-foot .foot-bg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      image-rendering: pixelated;
+      filter: grayscale(1) contrast(1.1) brightness(0.72);
+      z-index: 0;
+    }
+    .site-foot .foot-veil {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      background:
+        linear-gradient(to bottom, #0c0a08 0%, rgba(204, 255, 0, 0.14) 45%, rgba(12, 10, 8, 0.82) 100%),
+        radial-gradient(circle at center, transparent 32%, rgba(204, 255, 0, 0.08) 100%);
+    }
+    .site-foot .inner {
+      max-width: 1536px;
+      margin: 0 auto;
+      padding: 40px 32px 32px;
+      position: relative;
+      z-index: 20;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="confetti"></canvas>
+  <nav id="header">
+    <div class="topbar">
+      <a href="mint.html" class="brand">
+        <img src="assets/brand/logo.png" alt="Insomnus" class="h-8 pixel">
+        <span>INSOMNUS</span>
+      </a>
+      <div class="nav-links">
+        <a href="#mint" class="nav-link">MINT</a>
+        <a href="#inventory" class="nav-link">INVENTORY</a>
+        <a href="#activity" class="nav-link">ACTIVITY</a>
+        <a href="#faq" class="nav-link">FAQ</a>
+        <a href="#phases" class="nav-link">PHASES</a>
+      </div>
+      <button type="button" id="connect" class="wallet-btn">CONNECT WALLET</button>
+    </div>
+  </nav>
+
+  <header id="mint" class="banner">
+    <img class="hero" src="assets/gifs/hero-monster.gif" alt="">
+    <div class="veil"></div>
+    <div class="words">
+      <h1>Wake a companion</h1>
+      <p>Connect. Mint. You get one of the three at random.</p>
+    </div>
+  </header>
+
+  <div class="mint-wrap">
+    <article class="mint-desk sealed">
+      <div class="mint-stage">
+        <div class="reel" id="pet-reel">
+          <img class="sizer" src="assets/lab/pets/gloop.gif" alt="">
+          <div class="slide on" data-name="Gloop"><img src="assets/lab/pets/gloop.gif" alt=""></div>
+          <div class="slide" data-name="Demon Dog"><img src="assets/lab/pets/demon-dog.gif" alt=""></div>
+          <div class="slide" data-name="Heal Bot"><img src="assets/lab/pets/heal-bot.gif" alt=""></div>
+        </div>
+        <p class="reel-tag" id="reel-name">Gloop</p>
+      </div>
+      <div class="desk">
+        <p class="num">RANDOM · 30 MIN ROUNDS</p>
+        <h2 id="round-head">Ancient One</h2>
+        <div class="rounds">
+          <div class="round now">
+            <p class="k">CURRENT</p>
+            <h3 id="now-name">Ancient One</h3>
+            <p class="cap" id="now-cap">01 · FREE · 1x</p>
+            <p class="clock" id="now-clock">30:00</p>
+          </div>
+          <div class="round next">
+            <p class="k">UPCOMING</p>
+            <h3 id="next-name">GTD free</h3>
+            <p class="cap" id="next-cap">02 · FREE · 1x</p>
+            <p class="clock" id="next-clock">starts in 30:00</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div class="track">
+            <p class="info-kicker">MINTED</p>
+            <div class="top">
+              <span class="big" id="pool-left">28%</span>
+            </div>
+            <div class="track-bar"><div class="track-fill" id="pool-fill"></div></div>
+            <p class="sub" id="pool-sub">of supply</p>
+          </div>
+          <div class="track">
+            <p class="info-kicker">YOU CAN MINT</p>
+            <div class="top">
+              <span class="big" id="you-left">0</span>
+              <span class="of" id="you-of">/ 0</span>
+            </div>
+            <div class="track-bar"><div class="track-fill" id="you-fill"></div></div>
+            <p class="sub" id="you-sub">Connect to see your cap</p>
+          </div>
+        </div>
+        <div class="lock-line" id="lock-line">Transfer locked · opens at Public</div>
+        <div class="mt-3 flex flex-wrap items-center gap-3">
+          <div class="qty-box">
+            <button type="button" id="qty-minus">1−</button>
+            <input id="mint-qty" type="text" value="1" readonly>
+            <button type="button" id="qty-plus">1+</button>
+          </div>
+          <div class="pay">
+            <p class="k">PRICE</p>
+            <p class="amt" id="mint-price">0 ETH</p>
+          </div>
+          <button type="button" id="mint-btn" class="bind-btn">MINT</button>
+        </div>
+        <p class="note" id="mint-note">Connect a wallet to mint. Pets stay locked until Public. Mint is not live.</p>
+      </div>
+      <div class="mint-seal" id="mint-seal">
+        <p class="k">MINT SEALED</p>
+        <h2>Opens in</h2>
+        <p class="count" id="mint-eta">00:00:00:00</p>
+        <p class="hint">Days : Hours : Minutes : Seconds</p>
+        <div class="socials">
+          <a href="https://discord.gg/QYep7k5r8w" target="_blank" rel="noopener">DISCORD</a>
+          <a href="https://x.com/insomnusxyz" target="_blank" rel="noopener">X</a>
+        </div>
+      </div>
+    </article>
+  </div>
+
+  <div class="shell">
+    <section class="elig" id="elig">
+      <div class="elig-head">
+        <p class="k">YOUR ACCESS</p>
+        <p class="st" id="elig-st">Connect wallet to check allowlist</p>
+      </div>
+      <div class="elig-grid">
+        <div class="elig-row" data-gate="ancient">
+          <span class="nm">Ancient One</span>
+          <span class="lim">1x</span>
+          <span class="tag">—</span>
+        </div>
+        <div class="elig-row" data-gate="freegtd">
+          <span class="nm">GTD free</span>
+          <span class="lim">1x</span>
+          <span class="tag">—</span>
+        </div>
+        <div class="elig-row" data-gate="gtd">
+          <span class="nm">Guaranteed</span>
+          <span class="lim">9x</span>
+          <span class="tag">—</span>
+        </div>
+        <div class="elig-row" data-gate="petlist">
+          <span class="nm">Petlist</span>
+          <span class="lim">30x</span>
+          <span class="tag">—</span>
+        </div>
+        <div class="elig-row" data-gate="public">
+          <span class="nm">Public</span>
+          <span class="lim">open</span>
+          <span class="tag">—</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="bag" id="inventory">
+      <div class="elig-head">
+        <p class="k">YOUR INVENTORY</p>
+        <p class="st" id="bag-st">Connect wallet to see minted pets</p>
+      </div>
+      <div class="bag-meta">
+        <p class="n">Minted <b id="bag-count">0</b></p>
+        <p class="eta" id="bag-eta">Transfer locked until Public</p>
+      </div>
+      <div class="bag-grid" id="bag-grid">
+        <p class="bag-empty">Minted pets wait here until Public. Then they transfer to your wallet.</p>
+      </div>
+    </section>
+
+    <section id="activity">
+      <h2 class="section-title">Mint activity</h2>
+      <div class="activity">
+        <div class="max-h-72 overflow-auto">
+          <table class="activity-table">
+            <thead>
+              <tr>
+                <th>Wallet</th>
+                <th>Pet</th>
+                <th>Qty</th>
+                <th>Time</th>
+              </tr>
+            </thead>
+            <tbody id="mint-feed">
+              <tr><td>0x7a…c41d</td><td>Gloop</td><td>1</td><td>just now</td></tr>
+              <tr><td>0x3f…91aa</td><td>Demon Dog</td><td>2</td><td>1 min ago</td></tr>
+              <tr><td>voidwalker</td><td>Heal Bot</td><td>1</td><td>3 min ago</td></tr>
+              <tr><td>0xb2…e018</td><td>Gloop</td><td>1</td><td>6 min ago</td></tr>
+              <tr><td>ashborn</td><td>Demon Dog</td><td>1</td><td>9 min ago</td></tr>
+              <tr><td>0x11…d77c</td><td>Heal Bot</td><td>3</td><td>14 min ago</td></tr>
+              <tr><td>nightcoil</td><td>Gloop</td><td>1</td><td>21 min ago</td></tr>
+              <tr><td>0x9c…4402</td><td>Demon Dog</td><td>1</td><td>28 min ago</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="faq" class="mt-10">
+      <h2 class="section-title">FAQ</h2>
+      <div class="faq-grid">
+        <article class="faq-card">
+          <span class="n">01</span>
+          <h4>What are Insomnus Pets?</h4>
+          <p>Insomnus Pets are collectible companions that boost your drop rate and unlock breeding. Holding one gives you an edge in loot chests; it's not just cosmetic.</p>
+        </article>
+        <article class="faq-card">
+          <span class="n">02</span>
+          <h4>How do I get a pet?</h4>
+          <p>Mint runs in four rounds: Free Claim (Ancient One / OG holders and early Twitter supporters), GTD, Petlisted (earned via Discord level 3 + 1 invite, or Twitter raffles), then Public. Each round runs 30 minutes, and Public stays open until sold out.</p>
+        </article>
+        <article class="faq-card">
+          <span class="n">03</span>
+          <h4>What do pets do in-game?</h4>
+          <p>Every pet boosts your drop rate from loot chests, giving holders better odds at common, uncommon, epic, and legendary items. It's a real gameplay advantage, not just a collectible.</p>
+        </article>
+        <article class="faq-card">
+          <span class="n">04</span>
+          <h4>What does breeding actually do?</h4>
+          <p>Breeding combines two different Gen 1 pets (plus a Key and Essence) to produce a Gen 2 pet. Your Gen 1 pets aren't consumed — they just go on a one-month cooldown after each breed.</p>
+        </article>
+        <article class="faq-card">
+          <span class="n">05</span>
+          <h4>What's the difference between Gen 1, Gen 2, and Gen 3?</h4>
+          <p>Gen 1 is the original mint and never runs out. Gen 2 comes only from breeding and is fully tradeable. Gen 3 comes from burning three different Gen 2 pets and carries stronger resource-find bonuses plus access to gated events — it's the scarce tier.</p>
+        </article>
+        <article class="faq-card">
+          <span class="n">06</span>
+          <h4>Where does Key spending go?</h4>
+          <p>It's split three ways: development, marketing, and the majority into community rewards — weekly and monthly tournaments and boss events that any player can compete in.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="phases" class="mt-10">
+      <h2 class="section-title">Mint phases</h2>
+      <div class="phase-row-4">
+        <article class="phase" data-gate="free">
+          <p class="n">01 · FREE</p>
+          <h4>Ancient One + GTD free</h4>
+          <p>Same 30-minute window. Ancient One 1x. GTD free 1x. Transfer locked.</p>
+          <p class="eth">0 ETH</p>
+        </article>
+        <article class="phase" data-gate="gtd">
+          <p class="n">02 · GTD</p>
+          <h4>Guaranteed</h4>
+          <p>Cheapest paid round. 9x. Transfer locked until Public.</p>
+          <p class="eth">0.0024 ETH</p>
+        </article>
+        <article class="phase" data-gate="petlist">
+          <p class="n">03 · LIST</p>
+          <h4>Petlist</h4>
+          <p>Petlisted wallets. 30x. Still locked until Public.</p>
+          <p class="eth">0.0041 ETH</p>
+        </article>
+        <article class="phase" data-gate="public">
+          <p class="n">04 · PUBLIC</p>
+          <h4>Public</h4>
+          <p>Open round. Transfer unlocks. Secondary can start.</p>
+          <p class="eth">0.0061 ETH</p>
+        </article>
+      </div>
+    </section>
+  </div>
+
+  <footer class="site-foot">
+    <img src="assets/footer/footer-bg.gif" class="foot-bg" alt="">
+    <div class="foot-veil"></div>
+    <div class="inner">
+      <div class="dungeon-frame p-8">
+        <div class="bottom-corners"></div>
+        <div class="flex flex-col lg:flex-row gap-8 lg:gap-12 justify-between">
+          <div>
+            <div class="flex items-center gap-x-3 mb-2">
+              <img src="assets/brand/logo.png" class="h-7 pixel" alt="Insomnus">
+              <span class="text-2xl tracking-[4px] text-[#c5a46d]">INSOMNUS</span>
+            </div>
+            <div class="text-xs text-[#888]">In the realm of eternal night, only the sleepless survive.</div>
+          </div>
+          <div class="grid grid-cols-2 gap-x-10 text-sm">
+            <div class="space-y-1">
+              <div class="text-[#c02627] text-[10px] tracking-[2px] mb-1">THE REALM</div>
+              <a href="https://insomnus.xyz" target="_blank" class="block hover:text-white text-xs">ENTER DUNGEON</a>
+              <a href="https://docs.insomnus.xyz" target="_blank" class="block hover:text-white text-xs">DOCS &amp; LORE</a>
+              <a href="dashboard.html#pet-lab" class="block hover:text-white text-xs">PET LAB</a>
+            </div>
+            <div class="space-y-1">
+              <div class="text-[#c02627] text-[10px] tracking-[2px] mb-1">THE SLEEPLESS</div>
+              <a href="https://x.com/insomnusxyz" target="_blank" class="block hover:text-white text-xs">X / TWITTER</a>
+              <a href="https://discord.gg/QYep7k5r8w" target="_blank" class="block hover:text-white text-xs">DISCORD</a>
+              <a href="https://insomnus.xyz/login" target="_blank" class="block hover:text-white text-xs">GET ACCESS CODE</a>
+            </div>
+          </div>
+          <div class="text-right">
+            <div class="text-[#666] text-xs mb-1">193,284 SLEEPLESS HAVE ENTERED</div>
+            <div class="mt-2 text-[10px] text-[#555]">BUILT ON SOMNIA &amp; ROBINHOOD AND MORE</div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-6 pt-3 border-t border-[#3a2f2a]/40 text-center text-[10px] text-[#555] tracking-[1.5px]">
+        © 2026 INSOMNUS. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const MINT_OPENS_AT = Date.parse('2026-08-28T18:00:00Z');
+    const POOL_TOTAL = 9000;
+    let POOL_MINTED = 2557;
+    let YOU_MINTED = 0;
+    let mintQty = 1;
+    let account = '';
+    let eligPhase = '';
+    let currentRound = null;
+
+    const ROUND_MS = 30 * 60 * 1000;
+    const ROUND_LIST = [
+      { id: 'free', n: '01', title: 'Free claim', kind: 'FREE', capLabel: 'Ancient One 1x · GTD free 1x', price: 0, priceLabel: '0 ETH', gates: ['ancient', 'freegtd', 'free'] },
+      { id: 'gtd', n: '02', title: 'Guaranteed', kind: 'PAID', capLabel: '9x', price: 0.0024, priceLabel: '0.0024 ETH', gates: ['gtd'] },
+      { id: 'petlist', n: '03', title: 'Petlist', kind: 'PAID', capLabel: '30x', price: 0.0041, priceLabel: '0.0041 ETH', gates: ['petlist'] },
+      { id: 'public', n: '04', title: 'Public', kind: 'OPEN', capLabel: 'open', price: 0.0061, priceLabel: '0.0061 ETH', gates: ['public'] }
+    ];
+    const PETS = [
+      { name: 'Gloop', src: 'assets/lab/pets/gloop.gif' },
+      { name: 'Demon Dog', src: 'assets/lab/pets/demon-dog.gif' },
+      { name: 'Heal Bot', src: 'assets/lab/pets/heal-bot.gif' }
+    ];
+    const PHASE_CAP = { ancient: 1, freegtd: 1, gtd: 9, petlist: 30, public: 10 };
+    const WL_PHASES = {
+      ancient: { title: 'Ancient One', cap: 1 },
+      freegtd: { title: 'GTD free', cap: 1 },
+      gtd: { title: 'Guaranteed', cap: 9 },
+      petlist: { title: 'Petlist', cap: 30 },
+      public: { title: 'Public', cap: 10 }
+    };
+    const WL_SHEET_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTFVpaSKHpW5zLvfGiTKHW0pur-x1YrCyZyA1S3qJ93bb0RFi4ZJJvlzLqXOoJF3fu8LBZ0SAKaJq5x/pub?output=csv';
+    const sheetWl = new Map([
+      ['0xc4aef6a8bcbc75c3eaa9daa10008ae9b3bfa6a05d', 'petlist'],
+      ['0x2b0048acf0d030abd5556aedc56c411927851985', 'gtd']
+    ]);
+
+    function phaseFromLabel(raw) {
+      const s = String(raw || '').trim().toLowerCase();
+      if (!s) return '';
+      if (s.includes('ancient') || s === 'ao' || s === '01') return 'ancient';
+      if (s.includes('free') || s === 'freegtd' || s === 'gtd free' || s === '02') return 'freegtd';
+      if (s.includes('pet') || s.includes('list') || s === '04') return 'petlist';
+      if (s.includes('gtd') || s.includes('guaranteed') || s === '03') return 'gtd';
+      return '';
+    }
+
+    function parseCsv(text) {
+      return text.split(/\r?\n/).map((line) => {
+        const out = [];
+        let cur = '';
+        let q = false;
+        for (let i = 0; i < line.length; i++) {
+          const ch = line[i];
+          if (ch === '"') { q = !q; continue; }
+          if (ch === ',' && !q) { out.push(cur); cur = ''; continue; }
+          cur += ch;
+        }
+        out.push(cur);
+        return out.map((c) => c.trim());
+      }).filter((r) => r.some(Boolean));
+    }
+
+    async function loadSheetWl() {
+      if (!WL_SHEET_CSV) return;
+      try {
+        const res = await fetch(WL_SHEET_CSV + (WL_SHEET_CSV.includes('?') ? '&' : '?') + 't=' + Date.now());
+        if (!res.ok) return;
+        const rows = parseCsv(await res.text());
+        if (!rows.length) return;
+        const head = rows[0].map((h) => h.toLowerCase());
+        const ai = head.findIndex((h) => h.includes('address') || h.includes('wallet') || h === '0x');
+        const pi = head.findIndex((h) => h.includes('phase') || h.includes('round') || h.includes('list') || h.includes('tier'));
+        const start = ai >= 0 ? 1 : 0;
+        const aCol = ai >= 0 ? ai : 0;
+        const pCol = pi >= 0 ? pi : 1;
+        rows.slice(start).forEach((r) => {
+          const addr = String(r[aCol] || '').trim().toLowerCase();
+          const phase = phaseFromLabel(r[pCol]);
+          if (addr && phase) sheetWl.set(addr, phase);
+        });
+      } catch (e) {}
+    }
+    loadSheetWl();
+
+    function currentCap() {
+      if (!eligPhase || !PHASE_CAP[eligPhase]) return 0;
+      return PHASE_CAP[eligPhase];
+    }
+
+    function paintElig(phaseId) {
+      const st = document.getElementById('elig-st');
+      document.querySelectorAll('.elig-row').forEach((row) => {
+        const on = row.dataset.gate === phaseId || (account && row.dataset.gate === 'public');
+        row.classList.toggle('lit', on);
+        row.querySelector('.tag').textContent = on ? 'ELIGIBLE' : (account ? 'NO' : '—');
+      });
+      document.querySelectorAll('#phases .phase').forEach((el) => {
+        const match = el.dataset.gate === phaseId ||
+          (el.dataset.gate === 'free' && (phaseId === 'ancient' || phaseId === 'freegtd'));
+        el.classList.toggle('lit', match);
+      });
+      if (!account) {
+        st.className = 'st';
+        st.textContent = 'Connect wallet to check allowlist';
+        return;
+      }
+      if (phaseId && WL_PHASES[phaseId]) {
+        const p = WL_PHASES[phaseId];
+        st.className = 'st hit';
+        st.textContent = 'Eligible · ' + p.title + ' · ' + p.cap + 'x';
+      } else {
+        st.className = 'st miss';
+        st.textContent = 'Not eligible for a mint phase';
+      }
+    }
+
+    function shortAddr(a) {
+      if (!a) return '';
+      return a.slice(0, 6) + '…' + a.slice(-4);
+    }
+
+    function bagKey() {
+      return account ? ('insomnus-bag-' + account.toLowerCase()) : '';
+    }
+    function loadBag() {
+      if (!account) return [];
+      try {
+        const raw = localStorage.getItem(bagKey());
+        const list = raw ? JSON.parse(raw) : [];
+        return Array.isArray(list) ? list : [];
+      } catch (e) {
+        return [];
+      }
+    }
+    function saveBag(list) {
+      if (!account) return;
+      localStorage.setItem(bagKey(), JSON.stringify(list));
+    }
+    function msUntilPublic() {
+      const cycle = ROUND_MS * ROUND_LIST.length;
+      const t = Date.now() % cycle;
+      const idx = Math.floor(t / ROUND_MS);
+      const left = ROUND_MS - (t % ROUND_MS);
+      const pub = ROUND_LIST.findIndex((r) => r.id === 'public');
+      if (pub < 0 || idx === pub) return 0;
+      const steps = (pub - idx + ROUND_LIST.length) % ROUND_LIST.length;
+      return left + (steps - 1) * ROUND_MS;
+    }
+    function fmtEta(ms) {
+      const s = Math.max(0, Math.floor(ms / 1000));
+      const h = Math.floor(s / 3600);
+      const m = Math.floor((s % 3600) / 60);
+      const sec = s % 60;
+      if (h) return h + ':' + pad(m) + ':' + pad(sec);
+      return pad(m) + ':' + pad(sec);
+    }
+    function transfersOpen() {
+      return currentRound && currentRound.id === 'public';
+    }
+    function paintBagClock() {
+      const eta = document.getElementById('bag-eta');
+      const st = document.getElementById('bag-st');
+      const open = transfersOpen();
+      const n = account ? loadBag().length : 0;
+      if (eta) {
+        eta.classList.toggle('open', open);
+        if (!account || !n) {
+          eta.textContent = 'Transfer locked until Public';
+        } else if (open) {
+          eta.textContent = 'Public is live · transferring to wallet';
+        } else {
+          eta.textContent = 'Transfers in ' + fmtEta(msUntilPublic()) + ' · Public';
+        }
+      }
+      if (st) {
+        if (!account) st.textContent = 'Connect wallet to see minted pets';
+        else if (!n) st.textContent = 'No pets minted yet';
+        else st.textContent = n + (n === 1 ? ' pet' : ' pets') + (open ? ' · transferable' : ' · locked');
+      }
+      document.querySelectorAll('.bag-card').forEach((card) => {
+        card.classList.toggle('open', open);
+        const lk = card.querySelector('.lk');
+        if (lk) lk.textContent = open ? 'IN WALLET' : 'LOCKED';
+      });
+    }
+    function renderBag() {
+      const grid = document.getElementById('bag-grid');
+      const count = document.getElementById('bag-count');
+      const list = account ? loadBag() : [];
+      if (count) count.textContent = String(list.length);
+      if (!grid) return;
+      const open = transfersOpen();
+      if (!list.length) {
+        grid.innerHTML = '<p class="bag-empty">' +
+          (account
+            ? 'No pets yet. Minted companions wait here until Public, then they transfer to you.'
+            : 'Connect a wallet. Minted pets wait here until Public.') +
+          '</p>';
+        paintBagClock();
+        return;
+      }
+      grid.innerHTML = list.map((item) => {
+        const src = item.src || 'assets/lab/pets/gloop.gif';
+        const name = item.name || 'Companion';
+        return '<article class="bag-card' + (open ? ' open' : '') + '">' +
+          '<div class="stage"><img src="' + src + '" alt=""></div>' +
+          '<p class="nm">' + name + '</p>' +
+          '<p class="lk">' + (open ? 'IN WALLET' : 'LOCKED') + '</p>' +
+          '</article>';
+      }).join('');
+      paintBagClock();
+    }
+
+    function renderTrack() {
+      const poolLeft = Math.max(0, POOL_TOTAL - POOL_MINTED);
+      const cap = account ? currentCap() : 0;
+      const youLeft = Math.max(0, cap - YOU_MINTED);
+      const mintedPct = POOL_TOTAL ? Math.round((POOL_MINTED / POOL_TOTAL) * 100) : 0;
+      document.getElementById('pool-left').textContent = mintedPct + '%';
+      document.getElementById('pool-fill').style.width = mintedPct + '%';
+      document.getElementById('pool-sub').textContent = 'of supply';
+      document.getElementById('you-left').textContent = String(youLeft);
+      document.getElementById('you-of').textContent = '/ ' + cap;
+      document.getElementById('you-fill').style.width = cap ? Math.min(100, (YOU_MINTED / cap) * 100) + '%' : '0%';
+      document.getElementById('you-sub').textContent = 'Connect to see your cap';
+      const maxQty = Math.max(1, Math.min(youLeft || 1, poolLeft || 1));
+      if (mintQty > maxQty) mintQty = maxQty;
+      if (!cap) mintQty = 1;
+      document.getElementById('mint-qty').value = String(mintQty);
+    }
+
+    document.getElementById('qty-minus').addEventListener('click', () => {
+      mintQty = Math.max(1, mintQty - 1);
+      document.getElementById('mint-qty').value = String(mintQty);
+      paintPrice();
+    });
+    document.getElementById('qty-plus').addEventListener('click', () => {
+      const poolLeft = Math.max(0, POOL_TOTAL - POOL_MINTED);
+      const cap = Math.min(poolLeft, Math.max(0, currentCap() - YOU_MINTED));
+      mintQty = Math.min(mintQty + 1, Math.max(1, cap));
+      document.getElementById('mint-qty').value = String(mintQty);
+      paintPrice();
+    });
+    renderTrack();
+
+    function pad(n) { return String(n).padStart(2, '0'); }
+    function fmtOpen(ms) {
+      const s = Math.max(0, Math.floor(ms / 1000));
+      const d = Math.floor(s / 86400);
+      const h = Math.floor((s % 86400) / 3600);
+      const m = Math.floor((s % 3600) / 60);
+      const sec = s % 60;
+      return pad(d) + ':' + pad(h) + ':' + pad(m) + ':' + pad(sec);
+    }
+    function tickMintLock() {
+      const desk = document.querySelector('.mint-desk');
+      const eta = document.getElementById('mint-eta');
+      if (!desk) return;
+      const left = MINT_OPENS_AT - Date.now();
+      if (left <= 0) {
+        desk.classList.remove('sealed');
+        return;
+      }
+      desk.classList.add('sealed');
+      if (eta) eta.textContent = fmtOpen(left);
+    }
+    tickMintLock();
+    setInterval(tickMintLock, 1000);
+    function fmtLeft(ms) {
+      const s = Math.max(0, Math.floor(ms / 1000));
+      return pad(Math.floor(s / 60)) + ':' + pad(s % 60);
+    }
+    function fmtEth(n) {
+      if (!n) return '0 ETH';
+      return Number(n.toFixed(4)) + ' ETH';
+    }
+    function paintPrice() {
+      const el = document.getElementById('mint-price');
+      if (!el) return;
+      const p = currentRound ? currentRound.price : 0;
+      el.textContent = fmtEth(p * mintQty);
+    }
+    function tickRounds() {
+      const cycle = ROUND_MS * ROUND_LIST.length;
+      const t = Date.now() % cycle;
+      const idx = Math.floor(t / ROUND_MS);
+      const left = ROUND_MS - (t % ROUND_MS);
+      const now = ROUND_LIST[idx];
+      const next = ROUND_LIST[(idx + 1) % ROUND_LIST.length];
+      currentRound = now;
+      const head = document.getElementById('round-head');
+      if (head) head.textContent = now.title;
+      document.getElementById('now-name').textContent = now.title;
+      document.getElementById('now-cap').textContent = now.priceLabel + ' · ' + now.capLabel;
+      document.getElementById('now-clock').textContent = fmtLeft(left);
+      document.getElementById('next-name').textContent = next.title;
+      document.getElementById('next-cap').textContent = next.priceLabel + ' · ' + next.capLabel;
+      document.getElementById('next-clock').textContent = 'starts in ' + fmtLeft(left);
+      paintPrice();
+      const lockEl = document.getElementById('lock-line');
+      if (lockEl) {
+        const open = now.id === 'public';
+        lockEl.classList.toggle('open', open);
+        lockEl.textContent = open
+          ? 'Transfer open · Public is live'
+          : 'Transfer locked · opens at Public';
+      }
+      document.querySelectorAll('#phases .phase').forEach((el) => {
+        el.classList.toggle('on', now.gates.indexOf(el.dataset.gate) !== -1);
+      });
+      paintBagClock();
+    }
+    tickRounds();
+    setInterval(tickRounds, 1000);
+
+    let reelHoldUntil = 0;
+    (function autoReel() {
+      const slides = Array.from(document.querySelectorAll('#pet-reel .slide'));
+      const nameEl = document.getElementById('reel-name');
+      let i = 0;
+      setInterval(() => {
+        if (!slides.length || Date.now() < reelHoldUntil) return;
+        slides[i].classList.remove('on');
+        i = (i + 1) % slides.length;
+        slides[i].classList.add('on');
+        if (nameEl) nameEl.textContent = slides[i].dataset.name || '';
+      }, 2800);
+    })();
+
+    function celebrateMint(pet) {
+      const reel = document.getElementById('pet-reel');
+      if (reel) {
+        reel.querySelectorAll('.slide').forEach((s) => {
+          s.classList.toggle('on', s.dataset.name === pet);
+        });
+      }
+      const nameEl = document.getElementById('reel-name');
+      if (nameEl) nameEl.textContent = pet;
+      reelHoldUntil = Date.now() + 4000;
+      fireConfetti();
+    }
+
+    let confettiRun = 0;
+    function fireConfetti() {
+      const canvas = document.getElementById('confetti');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const run = ++confettiRun;
+      const fit = () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      };
+      fit();
+      canvas.classList.add('on');
+      const colors = ['#c5a46d', '#d4c08a', '#e6d5a0', '#b89a5c', '#ccff00', '#c5d94a'];
+      const bits = [];
+      for (let i = 0; i < 140; i++) {
+        bits.push({
+          x: Math.random() * canvas.width,
+          y: -24 - Math.random() * canvas.height * 0.55,
+          w: 4 + Math.random() * 6,
+          h: 9 + Math.random() * 8,
+          vx: (Math.random() - 0.5) * 0.9,
+          vy: 1.1 + Math.random() * 1.8,
+          rot: Math.random() * Math.PI * 2,
+          vr: (Math.random() - 0.5) * 0.08,
+          color: colors[i % colors.length],
+          drift: (Math.random() - 0.5) * 0.025
+        });
+      }
+      const start = performance.now();
+      const life = 4200;
+      const fade = 900;
+      function tick(now) {
+        if (run !== confettiRun) return;
+        const t = now - start;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const fadeIn = Math.min(1, t / 180);
+        const fadeOut = t > life - fade ? Math.max(0, 1 - (t - (life - fade)) / fade) : 1;
+        const alpha = fadeIn * fadeOut;
+        bits.forEach((p) => {
+          p.vy += 0.028;
+          p.vx += p.drift;
+          p.vx *= 0.996;
+          p.x += p.vx;
+          p.y += p.vy;
+          p.rot += p.vr;
+          ctx.save();
+          ctx.globalAlpha = alpha;
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.rot);
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+          ctx.restore();
+        });
+        if (t < life) {
+          requestAnimationFrame(tick);
+        } else {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          canvas.classList.remove('on');
+        }
+      }
+      requestAnimationFrame(tick);
+    }
+
+    const connectBtn = document.getElementById('connect');
+    const mintNote = document.getElementById('mint-note');
+
+    function setAccount(addr) {
+      account = addr || '';
+      eligPhase = account ? (sheetWl.get(account.toLowerCase()) || 'public') : '';
+      connectBtn.classList.toggle('on', Boolean(account));
+      connectBtn.textContent = account ? shortAddr(account) : 'CONNECT WALLET';
+      YOU_MINTED = loadBag().length;
+      paintElig(eligPhase);
+      renderTrack();
+      renderBag();
+      mintNote.textContent = 'Connect a wallet to mint. Pets stay locked until Public. Mint is not live.';
+    }
+
+    async function connectWallet() {
+      if (account) {
+        setAccount('');
+        return;
+      }
+      const eth = window.ethereum;
+      if (!eth) {
+        mintNote.textContent = 'No wallet found. Install MetaMask or another injected wallet.';
+        return;
+      }
+      try {
+        const list = await eth.request({ method: 'eth_requestAccounts' });
+        setAccount(list && list[0] ? list[0] : '');
+      } catch (e) {
+        mintNote.textContent = 'Wallet request was closed.';
+      }
+    }
+
+    connectBtn.addEventListener('click', connectWallet);
+    if (window.ethereum) {
+      window.ethereum.request({ method: 'eth_accounts' }).then((list) => {
+        if (list && list[0]) setAccount(list[0]);
+      }).catch(() => {});
+      window.ethereum.on && window.ethereum.on('accountsChanged', (list) => {
+        setAccount(list && list[0] ? list[0] : '');
+      });
+    }
+
+    document.getElementById('mint-btn').addEventListener('click', () => {
+      if (!account) {
+        connectBtn.focus();
+        mintNote.textContent = 'Connect a wallet first.';
+        return;
+      }
+      const cap = currentCap();
+      const left = Math.max(0, cap - YOU_MINTED);
+      if (!cap || left <= 0) {
+        mintNote.textContent = 'No mints left for this wallet.';
+        return;
+      }
+      const qty = Math.min(mintQty, left);
+      const bag = loadBag();
+      const got = [];
+      for (let i = 0; i < qty; i++) {
+        const pet = PETS[Math.floor(Math.random() * PETS.length)];
+        bag.push({ name: pet.name, src: pet.src, at: Date.now() });
+        got.push(pet);
+      }
+      saveBag(bag);
+      YOU_MINTED = bag.length;
+      POOL_MINTED = Math.min(POOL_TOTAL, POOL_MINTED + qty);
+      const shown = got[got.length - 1];
+      const feed = document.getElementById('mint-feed');
+      if (feed) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = '<td>' + shortAddr(account) + '</td><td>' + shown.name + '</td><td>' + qty + '</td><td>just now</td>';
+        feed.insertBefore(tr, feed.firstChild);
+      }
+      renderTrack();
+      paintPrice();
+      renderBag();
+      celebrateMint(shown.name);
+      mintNote.textContent = 'Minted ' + qty + ' · locked in inventory until Public.';
+    });
+
+    window.addEventListener('scroll', () => {
+      const header = document.getElementById('header');
+      if (!header) return;
+      header.classList.toggle('scrolled', window.scrollY > 80);
+    });
+  </script>
+</body>
+</html>
