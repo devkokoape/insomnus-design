@@ -26,6 +26,7 @@
       background: #0c0a08;
       color: var(--text);
       font-family: 'Alagard', serif;
+      overflow-x: hidden;
       cursor: url('assets/cursors/cursor.png') 16 16, crosshair !important;
     }
     a, button, .cursor-pointer { cursor: url('assets/cursors/cursor-click.png') 16 16, pointer !important; }
@@ -526,16 +527,38 @@
       min-height: 140px;
     }
     .faq-card:hover { border-color: #c02627; }
+    .faq-card summary {
+      list-style: none;
+      cursor: pointer;
+    }
+    .faq-card summary::-webkit-details-marker { display: none; }
     .faq-card .n { display: block; color: #c5a46d; letter-spacing: 3px; font-size: 0.75rem; margin-bottom: 8px; }
     .faq-card h4 { font-size: 1.35rem; color: #fff; line-height: 1.2; margin-bottom: 10px; }
     .faq-card p { color: #c9c9c5; line-height: 1.55; }
+    @media (min-width: 800px) {
+      .faq-card summary { cursor: default; pointer-events: none; }
+    }
     .phase-row-4 {
-      display: grid;
-      grid-template-columns: 1fr;
+      display: flex;
       gap: 10px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 6px;
+    }
+    .phase-row-4 .phase {
+      flex: 0 0 min(280px, 82vw);
+      scroll-snap-align: start;
     }
     @media (min-width: 900px) {
-      .phase-row-4 { grid-template-columns: repeat(4, 1fr); }
+      .phase-row-4 {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        overflow: visible;
+        scroll-snap-type: none;
+        padding-bottom: 0;
+      }
+      .phase-row-4 .phase { flex: none; width: auto; }
     }
     .phase {
       border: 2px solid #3a2f2a;
@@ -708,6 +731,150 @@
       position: relative;
       z-index: 20;
     }
+    @media (max-width: 379px) {
+      .topbar .brand span { display: none; }
+    }
+    @media (max-width: 767px) {
+      .shell {
+        width: min(1040px, calc(100% - 20px));
+        padding: 4px 0 32px;
+      }
+      .mint-wrap {
+        width: min(1320px, calc(100% - 16px));
+        margin: 10px auto 6px;
+      }
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: calc(100% - 24px);
+        height: 56px;
+        column-gap: 10px;
+      }
+      .topbar .brand { flex: 0 0 auto; gap: 8px; }
+      .topbar .brand img {
+        height: 32px;
+        width: 32px;
+        flex-shrink: 0;
+        object-fit: contain;
+      }
+      .topbar .brand span {
+        display: inline;
+        font-size: 0.95rem;
+        letter-spacing: 2px;
+      }
+      .topbar .nav-links { display: none; }
+      .wallet-btn {
+        flex: 0 0 auto;
+        width: auto;
+        padding: 8px 12px;
+        font-size: 0.7rem;
+        letter-spacing: 1px;
+        box-shadow: 0 3px 0 #000;
+      }
+      .banner { min-height: 220px; }
+      .banner .words {
+        min-height: 220px;
+        width: calc(100% - 20px);
+        padding: 16px 0 20px;
+      }
+      .banner h1 {
+        font-size: clamp(1.55rem, 8vw, 2.4rem);
+        max-width: none;
+      }
+      .banner p {
+        font-size: 0.95rem;
+        margin-top: 8px;
+        max-width: none;
+      }
+      .mint-desk.sealed .mint-stage,
+      .mint-desk.sealed .desk { filter: blur(5px); }
+      .mint-seal { padding: 16px 12px; }
+      .mint-seal h2 { font-size: 1.45rem; margin: 6px 0 10px; }
+      .mint-seal .count {
+        font-size: 1.45rem;
+        letter-spacing: 1px;
+        word-break: break-all;
+      }
+      .mint-seal .hint { font-size: 0.75rem; }
+      .mint-seal .socials { margin-top: 14px; }
+      .mint-stage .reel { min-height: 220px; }
+      .desk { padding: 14px 12px 14px; }
+      .desk .num { font-size: 0.78rem; letter-spacing: 2px; }
+      .desk h2 { font-size: 1.35rem; }
+      .rounds { gap: 6px; }
+      .round { padding: 10px 8px 8px; }
+      .round h3 { font-size: 1.05rem; }
+      .round .cap {
+        font-size: 0.75rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .round .clock { font-size: 1.25rem; }
+      .round.next .clock { font-size: 0.95rem; }
+      .track { padding: 10px; }
+      .track .big { font-size: 1.4rem; }
+      .lock-line {
+        font-size: 0.75rem;
+        height: auto;
+        min-height: 2.45em;
+        white-space: normal;
+      }
+      .mint-actions {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 8px;
+      }
+      .mint-actions .bind-btn {
+        grid-column: 1 / -1;
+        width: 100%;
+        padding: 12px 16px;
+      }
+      .pay { min-width: 0; }
+      .note { font-size: 0.8rem; min-height: 2.4em; }
+      .elig-head, .bag-meta { padding: 8px 10px; gap: 6px; }
+      .elig-head .k, .bag-meta .n { font-size: 0.68rem; }
+      .elig-head .st, .bag-meta .eta { font-size: 0.75rem; }
+      .elig-row {
+        grid-template-columns: 1fr auto auto;
+        padding: 8px 10px;
+        font-size: 0.9rem;
+      }
+      .bag-grid {
+        grid-template-columns: repeat(3, 1fr);
+        padding: 10px;
+        min-height: 0;
+        gap: 8px;
+      }
+      .activity { overflow-x: auto; }
+      .activity-table { min-width: 420px; }
+      .activity-table th, .activity-table td {
+        padding: 8px 10px;
+        font-size: 0.9rem;
+      }
+      #faq {
+        margin-top: 22px;
+        padding-left: 8px;
+        padding-right: 8px;
+      }
+      .faq-grid { gap: 8px; }
+      .faq-card {
+        padding: 10px 12px;
+        min-height: 0;
+      }
+      .faq-card .n { font-size: 0.62rem; margin-bottom: 3px; }
+      .faq-card h4 { font-size: 0.95rem; margin-bottom: 5px; }
+      .faq-card p { font-size: 0.78rem; line-height: 1.4; }
+      .phase { padding: 14px 12px; }
+      .site-foot .inner { padding: 24px 16px 20px; }
+      .site-foot .text-right { text-align: left; }
+    }
+    @media (min-width: 768px) and (max-width: 1100px) {
+      .wallet-btn { width: 168px; font-size: 0.8rem; letter-spacing: 1px; }
+      .nav-link { padding: 4px 7px; font-size: 0.75rem; }
+      .topbar { width: calc(100% - 24px); }
+    }
   </style>
 </head>
 <body>
@@ -786,7 +953,7 @@
           </div>
         </div>
         <div class="lock-line" id="lock-line">Transfer locked · opens at Public</div>
-        <div class="mt-3 flex flex-wrap items-center gap-3">
+        <div class="mint-actions mt-3 flex flex-wrap items-center gap-3">
           <div class="qty-box">
             <button type="button" id="qty-minus">1−</button>
             <input id="mint-qty" type="text" value="1" readonly>
@@ -893,36 +1060,48 @@
     <section id="faq" class="mt-10">
       <h2 class="section-title">FAQ</h2>
       <div class="faq-grid">
-        <article class="faq-card">
-          <span class="n">01</span>
-          <h4>What are Insomnus Pets?</h4>
+        <details class="faq-card">
+          <summary>
+            <span class="n">01</span>
+            <h4>What are Insomnus Pets?</h4>
+          </summary>
           <p>Insomnus Pets are collectible companions that boost your drop rate and unlock breeding. Holding one gives you an edge in loot chests; it's not just cosmetic.</p>
-        </article>
-        <article class="faq-card">
-          <span class="n">02</span>
-          <h4>How do I get a pet?</h4>
+        </details>
+        <details class="faq-card">
+          <summary>
+            <span class="n">02</span>
+            <h4>How do I get a pet?</h4>
+          </summary>
           <p>Mint runs in four rounds: Free Claim (Ancient One / OG holders and early Twitter supporters), GTD, Petlisted (earned via Discord level 3 + 1 invite, or Twitter raffles), then Public. Each round runs 30 minutes, and Public stays open until sold out.</p>
-        </article>
-        <article class="faq-card">
-          <span class="n">03</span>
-          <h4>What do pets do in-game?</h4>
+        </details>
+        <details class="faq-card">
+          <summary>
+            <span class="n">03</span>
+            <h4>What do pets do in-game?</h4>
+          </summary>
           <p>Every pet boosts your drop rate from loot chests, giving holders better odds at common, uncommon, epic, and legendary items. It's a real gameplay advantage, not just a collectible.</p>
-        </article>
-        <article class="faq-card">
-          <span class="n">04</span>
-          <h4>What does breeding actually do?</h4>
+        </details>
+        <details class="faq-card">
+          <summary>
+            <span class="n">04</span>
+            <h4>What does breeding actually do?</h4>
+          </summary>
           <p>Breeding combines two different Gen 1 pets (plus a Key and Essence) to produce a Gen 2 pet. Your Gen 1 pets aren't consumed — they just go on a one-month cooldown after each breed.</p>
-        </article>
-        <article class="faq-card">
-          <span class="n">05</span>
-          <h4>What's the difference between Gen 1, Gen 2, and Gen 3?</h4>
+        </details>
+        <details class="faq-card">
+          <summary>
+            <span class="n">05</span>
+            <h4>What's the difference between Gen 1, Gen 2, and Gen 3?</h4>
+          </summary>
           <p>Gen 1 is the original mint and never runs out. Gen 2 comes only from breeding and is fully tradeable. Gen 3 comes from burning three different Gen 2 pets and carries stronger resource-find bonuses plus access to gated events — it's the scarce tier.</p>
-        </article>
-        <article class="faq-card">
-          <span class="n">06</span>
-          <h4>Where does Key spending go?</h4>
+        </details>
+        <details class="faq-card">
+          <summary>
+            <span class="n">06</span>
+            <h4>Where does Key spending go?</h4>
+          </summary>
           <p>It's split three ways: development, marketing, and the majority into community rewards — weekly and monthly tournaments and boss events that any player can compete in.</p>
-        </article>
+        </details>
       </div>
     </section>
 
@@ -998,7 +1177,8 @@
   </footer>
 
   <script>
-    const MINT_OPENS_AT = Date.parse('2026-08-28T18:00:00Z');
+    const MINT_OPENS_AT = Date.parse('2026-08-30T18:00:00Z');
+    const MINT_PREVIEW = /[?&]preview=1(?:&|$)/.test(location.search);
     const POOL_TOTAL = 9000;
     let POOL_MINTED = 2557;
     let YOU_MINTED = 0;
@@ -1256,7 +1436,7 @@
       const eta = document.getElementById('mint-eta');
       if (!desk) return;
       const left = MINT_OPENS_AT - Date.now();
-      if (left <= 0) {
+      if (MINT_PREVIEW || left <= 0) {
         desk.classList.remove('sealed');
         return;
       }
@@ -1487,6 +1667,16 @@
       if (!header) return;
       header.classList.toggle('scrolled', window.scrollY > 80);
     });
+
+    (function faqFold() {
+      const cards = Array.from(document.querySelectorAll('#faq details.faq-card'));
+      const wide = window.matchMedia('(min-width: 800px)');
+      function sync() {
+        cards.forEach((d) => { d.open = wide.matches; });
+      }
+      sync();
+      wide.addEventListener('change', sync);
+    })();
   </script>
 </body>
 </html>

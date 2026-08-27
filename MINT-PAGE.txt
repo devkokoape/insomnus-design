@@ -1,0 +1,84 @@
+THINGS ON THIS PAGE A DEV CAN MISS
+mint.html — look at the JS/CSS, not just the layout.
+
+
+PRE-MINT SEAL
+The minter starts with class "sealed" in the HTML so it does not flash unlocked.
+If Date.now() < MINT_OPENS_AT the desk and GIF are blurred (filter), clicks are blocked, overlay sits on top.
+Countdown is DD:HH:MM:SS. Discord and X are on the overlay, not in the blurred desk.
+Constant: MINT_OPENS_AT = Date.parse('2026-08-28T18:00:00Z')
+When time hits, class "sealed" is removed. Nothing else on the page is locked.
+
+
+WALLET (EASY TO BREAK THE HEADER)
+Connect is window.ethereum eth_requestAccounts.
+Clicking Connect again clears the UI account. It does not revoke MetaMask.
+accountsChanged is hooked. eth_accounts runs on load so a connected wallet restores.
+The connect button is width 220px, text ellipsis, centered. Do not let the label resize or the nav links shift.
+Short address format: 0x + 4 then … then last 4.
+
+
+ALLOWLIST (NOT ONLY THE TABLE YOU SEE)
+CSV is fetched from a published Google Sheet on load (cache-bust with t=Date.now()).
+Two wallets are hardcoded first, then the sheet overwrites/adds:
+  0xc4aef6a8bcbc75c3eaa9daa10008ae9b3bfa6a05d → petlist
+  0x2b0048acf0d030abd5556aedc56c411927851985 → gtd
+If connected and not on a list, phase is set to "public".
+Public row is always lit when any wallet is connected.
+The mock does NOT check that the current 30-min round matches the wallet's list. A GTD wallet can still mock-mint while the desk shows Free.
+
+
+MINT CLICK
+There is no review popup. MINT fires immediately.
+Needs a connected wallet and remaining cap or it only writes a note under the button.
+Qty is one random pet per unit (loop). Three pets, equal chance: Gloop, Demon Dog, Heal Bot.
+The GIF reel is not a picker. pointer-events: none on the whole mint-stage.
+After mint the reel jumps to the last pet rolled and STAYS there ~4 seconds (reelHoldUntil). Then auto-cycle resumes (every 2.8s).
+
+
+CONFETTI
+On mint, canvas #confetti covers the full viewport (z-index 80).
+Falling pieces only (no center burst). Colors: gold / cream / lime. No red, no white.
+~4.2s then fade. pointer-events: none so the page stays clickable.
+A second mint cancels the previous run (confettiRun++).
+
+
+INVENTORY (NOT ON-CHAIN)
+Key: localStorage["insomnus-bag-" + wallet.toLowerCase()]
+Array of { name, src, at }. One object per minted unit.
+Count, lock label, and countdown are derived in JS, not from a contract.
+LOCKED until the mock round id is "public", then label flips to IN WALLET.
+Countdown to Public is computed from the fake 30-min cycle, not from MINT_OPENS_AT.
+Gold 4px frame is only on those pet GIFs.
+
+
+TRANSFER LOCK
+UI only. No soulbound on-chain yet.
+Rule we designed: tokens stay non-transferable until Public starts (anti-dump for Free / Guaranteed).
+Desk line and inventory ETA both follow currentRound.id === 'public'.
+
+
+SUPPLY / YOU CAN MINT
+Left bar is minted % of 9000, not remaining. POOL_MINTED starts at 2557 and increments in memory only.
+YOU_MINTED is bag.length after connect, not a chain balance.
+The subtitle under YOU CAN MINT is hardcoded and does not change (stops the box growing).
+
+
+LAYOUT TRAPS
+Elig status and mint note have reserved height / nowrap / ellipsis so connect/disconnect does not resize boxes.
+Elig tags have min-width 8ch for ELIGIBLE vs —.
+Wallet button and header are a 3-column grid so nav stays centered.
+Do not put eligibility or inventory inside the minter box. GIF + desk only.
+
+
+ROUNDS CLOCK
+Date.now() % (4 * 30min). It loops forever. Public in this mock is also 30 min.
+Price in the desk is currentRound.price * qty.
+
+
+WHAT IS FAKE
+No contract, no chain, no payment.
+Random is Math.random().
+Activity table is dummy rows plus local prepend.
+Supply numbers are dummy.
+Sheet + seeds are the only allowlist.
