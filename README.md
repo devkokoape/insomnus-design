@@ -8,6 +8,7 @@ Static design files for Insomnus. Homepage and dashboard app are **separate**.
 |------|------------|
 | `index.html` | Marketing homepage / landing |
 | `dashboard.html` | Player dashboard **app** (not the homepage) |
+| `mint.html` | Standalone mint site (`mint.insomnus.xyz`) — no dashboard chrome |
 
 ## Open locally
 
@@ -20,6 +21,7 @@ Then open:
 
 - Homepage: http://localhost:3000/
 - Dashboard app: http://localhost:3000/dashboard.html
+- Mint site: http://localhost:3000/mint.html
 
 Or just double-click `dashboard.html`.
 

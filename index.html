@@ -78,54 +78,40 @@
       letter-spacing: 1px;
     }
     
+    /* Stone HUD frame — one class, no images, no extra HTML.
+       Live site: copy this block. Put class="dungeon-frame" on the box. */
     .dungeon-frame {
+      --frame: #c5a46d;
       position: relative;
-      border: 3px solid #3a2f2a;
+      border: 1px solid #4a3c32;
       background: #12100e;
+      box-shadow: inset 0 0 0 1px rgba(197, 164, 109, 0.16);
     }
-    
-    .dungeon-frame::before, .dungeon-frame::after {
-      content: '';
-      position: absolute;
-      width: 28px;
-      height: 28px;
-      background-size: contain;
-      background-repeat: no-repeat;
-      z-index: 2;
-      pointer-events: none;
-    }
-    
     .dungeon-frame::before {
-      top: -3px;
-      left: -3px;
-      background-image: url('assets/frames/corner-top-left.webp');
-    }
-    .dungeon-frame::after {
-      top: -3px;
-      right: -3px;
-      background-image: url('assets/frames/corner-top-right.webp');
-    }
-    
-    .dungeon-frame .bottom-corners::before, .dungeon-frame .bottom-corners::after {
       content: '';
       position: absolute;
-      width: 28px;
-      height: 28px;
-      background-size: contain;
-      background-repeat: no-repeat;
-      z-index: 2;
+      inset: 0;
       pointer-events: none;
+      z-index: 2;
+      background:
+        linear-gradient(var(--frame), var(--frame)) top left,
+        linear-gradient(var(--frame), var(--frame)) top left,
+        linear-gradient(var(--frame), var(--frame)) top right,
+        linear-gradient(var(--frame), var(--frame)) top right,
+        linear-gradient(var(--frame), var(--frame)) bottom left,
+        linear-gradient(var(--frame), var(--frame)) bottom left,
+        linear-gradient(var(--frame), var(--frame)) bottom right,
+        linear-gradient(var(--frame), var(--frame)) bottom right;
+      background-repeat: no-repeat;
+      background-size:
+        18px 2px, 2px 18px,
+        18px 2px, 2px 18px,
+        18px 2px, 2px 18px,
+        18px 2px, 2px 18px;
     }
-    
-    .dungeon-frame .bottom-corners::before {
-      bottom: -3px;
-      left: -3px;
-      background-image: url('assets/frames/corner-bottom-left.webp');
-    }
-    .dungeon-frame .bottom-corners::after {
-      bottom: -3px;
-      right: -3px;
-      background-image: url('assets/frames/corner-bottom-right.webp');
+    .dungeon-frame:hover {
+      --frame: #e4c48a;
+      border-color: #5c4c40;
     }
     
     .flame {
@@ -161,9 +147,12 @@
     }
     
     .game-card:hover {
+      --frame: #c02627;
       transform: translateY(-4px);
-      box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.4);
       border-color: #c02627;
+      box-shadow:
+        inset 0 0 0 1px rgba(192, 38, 39, 0.28),
+        0 25px 50px -12px rgb(0 0 0 / 0.4);
     }
 
     /* UNIQUE STYLING FOR CRITICAL MODES / PETS / COSMETICS SECTION */
@@ -173,27 +162,16 @@
 
     #modes .critical-card {
       background: rgba(15,13,11,0.92);
-      border: 2px solid #3a2f2a;
-      position: relative;
       overflow: hidden;
       transition: all 0.2s cubic-bezier(0.23, 1, 0.32, 1);
     }
 
-    #modes .critical-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 3px;
-      background: linear-gradient(to right, #c5a46d, #c02627, #c5a46d);
-      opacity: 0.7;
-    }
-
     #modes .critical-card:hover {
-      border-color: #c5a46d;
+      --frame: #c5a46d;
       transform: translateY(-3px);
-      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.65);
+      box-shadow:
+        inset 0 0 0 1px rgba(197, 164, 109, 0.28),
+        0 25px 60px -15px rgba(0, 0, 0, 0.65);
     }
 
     #modes .critical-card .card-label {
@@ -323,6 +301,146 @@
 
     .text-animate .word:hover { color: #c02627; }
     .text-animate-red .word:hover { color: white; }
+
+    .eco-kicker {
+      font-size: 11px;
+      letter-spacing: 4px;
+      color: #c5a46d;
+      margin: 28px 0 14px;
+    }
+    .chain-grid {
+      display: grid;
+      grid-template-columns: 1.35fr 1fr 1fr;
+      grid-template-rows: minmax(210px, 28vh) minmax(210px, 28vh);
+      gap: 14px;
+    }
+    .chain-tile {
+      position: relative;
+      overflow: hidden;
+      min-height: 210px;
+    }
+    .chain-tile.lead { grid-row: 1 / 3; min-height: 440px; }
+    .chain-tile.span-rest { grid-column: 2 / 4; }
+    .chain-tile img.bg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .chain-tile .veil {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, #0c0a08 8%, rgba(12,10,8,0.45) 55%, rgba(12,10,8,0.15) 100%);
+    }
+    .chain-tile .copy {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 22px 22px 20px;
+    }
+    .chain-tile .tag { color: #ccff00; letter-spacing: 2px; font-size: 0.72rem; margin-bottom: 6px; }
+    .chain-tile h3 { font-family: 'VT323', monospace; font-size: clamp(1.8rem, 3vw, 2.6rem); color: #fff; line-height: 1; margin-bottom: 8px; }
+    .chain-tile p { color: #c9c9c5; font-size: 0.95rem; line-height: 1.45; max-width: 36em; }
+    .partner-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+    .partner-card { overflow: hidden; }
+    .partner-card .art { position: relative; height: 220px; }
+    .partner-card .art img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .partner-card .art .veil {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, #0c0a08 0%, rgba(12,10,8,0.35) 70%, transparent 100%);
+    }
+    .soon-rail {
+      margin-top: 36px;
+      padding: 22px 24px 20px;
+    }
+    .soon-rail .k { color: #c02627; letter-spacing: 3px; font-size: 11px; margin-bottom: 16px; }
+    .soon-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .soon-item {
+      display: grid;
+      grid-template-columns: 48px minmax(0, 1fr);
+      grid-template-rows: auto auto;
+      column-gap: 12px;
+      row-gap: 8px;
+      align-items: center;
+      border: 2px solid #3a2f2a;
+      background: #0c0a08;
+      padding: 14px;
+      min-width: 0;
+      overflow: hidden;
+    }
+    .soon-item .mark {
+      grid-column: 1;
+      grid-row: 1;
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #1a1612;
+      flex-shrink: 0;
+    }
+    .soon-item .mark img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      border-radius: 12px;
+    }
+    .soon-item .nm {
+      grid-column: 2;
+      grid-row: 1;
+      font-family: 'VT323', monospace;
+      color: #fff;
+      font-size: clamp(0.95rem, 1.05vw, 1.15rem);
+      line-height: 1.15;
+      min-width: 0;
+      overflow-wrap: break-word;
+    }
+    .soon-item .tx {
+      grid-column: 1 / -1;
+      grid-row: 2;
+      color: #9ca3af;
+      font-size: 0.72rem;
+      line-height: 1.4;
+      min-width: 0;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .soon-item.more {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #6b7280;
+      letter-spacing: 2px;
+      font-size: 0.8rem;
+    }
+    @media (max-width: 1200px) {
+      .soon-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+    @media (max-width: 700px) {
+      .soon-grid { grid-template-columns: 1fr 1fr; }
+      .soon-item { padding: 12px; column-gap: 10px; }
+      .soon-item .mark { width: 44px; height: 44px; }
+    }
+    @media (max-width: 900px) {
+      .chain-grid { grid-template-columns: 1fr; grid-template-rows: none; }
+      .chain-tile.lead, .chain-tile.span-rest { grid-row: auto; grid-column: auto; min-height: 260px; }
+      .partner-grid { grid-template-columns: 1fr; }
+    }
 
     /* Trials section GIF: B&W by default, full color on hover */
     .trials-gif {
@@ -467,23 +585,23 @@
 
     /* Slow breathing horror on the dungeon frame itself */
     .dungeon-frame.horde-visual {
-      box-shadow: 
-        0 0 0 1px #3a2f2a,
+      box-shadow:
+        inset 0 0 0 1px rgba(197, 164, 109, 0.16),
         inset 0 0 40px rgba(0, 0, 0, 0.7),
         0 0 30px rgba(192, 38, 39, 0.06);
       animation: horde-frame-breath 16s ease-in-out infinite;
     }
 
     @keyframes horde-frame-breath {
-      0%, 100% { 
-        box-shadow: 
-          0 0 0 1px #3a2f2a,
+      0%, 100% {
+        box-shadow:
+          inset 0 0 0 1px rgba(197, 164, 109, 0.16),
           inset 0 0 40px rgba(0, 0, 0, 0.7),
           0 0 30px rgba(192, 38, 39, 0.06);
       }
-      50% { 
-        box-shadow: 
-          0 0 0 1px #4a3f3a,
+      50% {
+        box-shadow:
+          inset 0 0 0 1px rgba(197, 164, 109, 0.28),
           inset 0 0 60px rgba(0, 0, 0, 0.85),
           0 0 55px rgba(192, 38, 39, 0.22);
       }
@@ -551,7 +669,7 @@
         <a href="#trials" class="nav-link text-[#c9c9c5] hover:text-white">THE TRIALS</a>
         <a href="#master" class="nav-link text-[#c9c9c5] hover:text-white">MASTER THE DUNGEON</a>
         <a href="#horde" class="nav-link text-[#c9c9c5] hover:text-white">THE HORDE</a>
-        <a href="#modes" class="nav-link text-[#c9c9c5] hover:text-white">MODES &amp; MORE</a>
+        <a href="#modes" class="nav-link text-[#c9c9c5] hover:text-white">PETS</a>
         <a href="#ecosystem" class="nav-link text-[#c9c9c5] hover:text-white">ECOSYSTEM</a>
         <a href="#faq" class="nav-link text-[#c9c9c5] hover:text-white">INSCRIPTIONS</a>
       </div>
@@ -576,7 +694,7 @@
         <a href="#trials" class="block py-1.5 px-3 border border-[#3a2f2a] hover:border-[#c02627] hover:bg-[#14120f] transition-colors" onclick="toggleMobileMenu()">THE TRIALS</a>
         <a href="#master" class="block py-1.5 px-3 border border-[#3a2f2a] hover:border-[#c02627] hover:bg-[#14120f] transition-colors" onclick="toggleMobileMenu()">MASTER THE DUNGEON</a>
         <a href="#horde" class="block py-1.5 px-3 border border-[#3a2f2a] hover:border-[#c02627] hover:bg-[#14120f] transition-colors" onclick="toggleMobileMenu()">THE HORDE</a>
-        <a href="#modes" class="block py-1.5 px-3 border border-[#3a2f2a] hover:border-[#c02627] hover:bg-[#14120f] transition-colors" onclick="toggleMobileMenu()">MODES &amp; MORE</a>
+        <a href="#modes" class="block py-1.5 px-3 border border-[#3a2f2a] hover:border-[#c02627] hover:bg-[#14120f] transition-colors" onclick="toggleMobileMenu()">PETS</a>
         <a href="#ecosystem" class="block py-1.5 px-3 border border-[#3a2f2a] hover:border-[#c02627] hover:bg-[#14120f] transition-colors" onclick="toggleMobileMenu()">ECOSYSTEM</a>
         <a href="#faq" class="block py-1.5 px-3 border border-[#3a2f2a] hover:border-[#c02627] hover:bg-[#14120f] transition-colors" onclick="toggleMobileMenu()">INSCRIPTIONS</a>
         
@@ -632,7 +750,7 @@
     <!-- Badge at bottom-left (small, doesn't disturb the central eye) -->
     <div class="absolute bottom-6 left-6 z-30">
       <span class="alagard-font text-[9px] md:text-[10px] tracking-[1.5px] text-[#d1d5db]" style="text-shadow: 0 1px 2px rgba(0,0,0,0.9);">
-        CLOSED BETA • SOMNIA &amp; MEGAETH
+        CLOSED BETA • SOMNIA • ROBINHOOD AND MORE
       </span>
     </div>
     
@@ -716,7 +834,6 @@
         
         <!-- The Final Score -->
         <div class="dungeon-frame p-8 game-card group">
-          <div class="bottom-corners"></div>
           <div class="text-xs text-[#c02627] tracking-widest mb-2">THE FINAL SCORE</div>
           <div class="pixel-font text-3xl mb-4 leading-none text-animate">
             <span class="word">YOUR</span> <span class="word">GOAL</span> <span class="word">IS</span> <span class="word">SIMPLE</span>
@@ -730,7 +847,6 @@
         
         <!-- Community & Points -->
         <div class="dungeon-frame p-8 game-card group">
-          <div class="bottom-corners"></div>
           <div class="text-xs text-[#c02627] tracking-widest mb-2">COMMUNITY &amp; POINTS</div>
           <div class="pixel-font text-3xl mb-4 leading-none text-animate">
             <span class="word">EVERY</span> <span class="word">ACTION</span> <span class="word">DRIVES</span> <span class="word">GROWTH</span>
@@ -744,7 +860,6 @@
         
         <!-- Unpredictable Threats -->
         <div class="dungeon-frame p-8 game-card group">
-          <div class="bottom-corners"></div>
           <div class="text-xs text-[#c02627] tracking-widest mb-2">UNPREDICTABLE THREATS</div>
           <div class="pixel-font text-3xl mb-4 leading-none text-animate">
             <span class="word">FACE</span> <span class="word">AN</span> <span class="word">EVER-CHANGING</span> <span class="word">HORDE</span>
@@ -778,7 +893,6 @@
                 <!-- scary dread background layer -->
                 <div class="absolute inset-0 pointer-events-none horde-dread"></div>
               </div>
-              <div class="bottom-corners"></div>
             </div>
             <div class="mt-4 text-xs text-[#666] tracking-widest">EVER-CHANGING DUNGEON DWELLERS</div>
           </div>
@@ -851,7 +965,7 @@
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         
         <!-- Game Modes -->
-        <div class="critical-card p-8">
+        <div class="dungeon-frame critical-card p-8">
           <div class="card-label">SURVIVE DIFFERENTLY</div>
           <div class="pixel-font text-3xl mb-5 text-white">GAME MODES</div>
           
@@ -871,7 +985,7 @@
         </div>
         
         <!-- Pets -->
-        <div class="critical-card p-8">
+        <div class="dungeon-frame critical-card p-8">
           <div class="card-label">YOUR LOYAL ALLIES</div>
           <div class="pixel-font text-3xl mb-5 text-white">PETS</div>
           
@@ -890,7 +1004,7 @@
         </div>
         
         <!-- Cosmetics -->
-        <div class="critical-card p-8">
+        <div class="dungeon-frame critical-card p-8">
           <div class="card-label">STAND OUT IN THE DARK</div>
           <div class="pixel-font text-3xl mb-5 text-white">COSMETICS</div>
           
@@ -916,78 +1030,117 @@
   </section>
 
   <!-- ECOSYSTEM SUPPORTERS -->
-  <section id="ecosystem" class="py-20 border-b border-[#3a2f2a]">
+  <section id="ecosystem" class="py-28 border-b border-[#3a2f2a]">
     <div class="max-w-screen-2xl mx-auto px-8">
       
-      <div class="mb-10 text-center">
+      <div class="mb-12">
         <div class="text-xs tracking-[4px] text-[#c02627]">THE ECOSYSTEM</div>
-        <div class="pixel-font text-5xl md:text-6xl leading-none tracking-[-2px]">SUPPORTERS</div>
-        <p class="mt-3 max-w-lg mx-auto text-[#888]">Insomnus is part of these powerful ecosystems powering the next generation of on-chain gaming.</p>
+        <div class="pixel-font text-6xl md:text-7xl leading-none tracking-[-2px]">SUPPORTERS</div>
+        <p class="mt-4 max-w-2xl text-[#a8a29e] text-lg">Chains that hold the dungeon. Guilds and labs that walk it with us.</p>
       </div>
 
-      <!-- 4 individual creative blocks, each with its own picture at the top + dark gradient -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        
-        <!-- Somnia -->
-        <div class="dungeon-frame overflow-hidden game-card group">
-          <div class="bottom-corners"></div>
-          <div class="relative">
-            <img src="assets/partners/somnia.jpg" class="w-full h-40 object-cover" alt="Somnia Network">
-            <!-- transparent dark effect from bottom to top -->
-            <div class="absolute inset-0 bg-gradient-to-t from-[#0c0a08] via-[#0c0a08]/75 to-transparent"></div>
+      <p class="eco-kicker">SUPPORTED CHAINS</p>
+      <div class="chain-grid">
+        <article class="dungeon-frame chain-tile lead">
+          <img class="bg" src="assets/partners/rh-hero.jpg" alt="Robinhood Chain" style="object-position: center 72%;">
+          <div class="veil"></div>
+          <div class="copy">
+            <p class="tag">SUPPORTED CHAIN</p>
+            <h3>ROBINHOOD</h3>
+            <p>The home for onchain crypto &amp; institutions. Insomnus runs here — play, market, and mint on Robinhood Chain.</p>
           </div>
-          <div class="p-6">
-            <div class="pixel-font text-2xl mb-1">SOMNIA NETWORK</div>
-            <div class="text-xs text-[#c5a46d] tracking-[2px] mb-3">HIGH-PERFORMANCE L1</div>
-            <div class="text-sm text-[#a8a29e]">The high-performance blockchain foundation enabling seamless, scalable gameplay.</div>
+        </article>
+        <article class="dungeon-frame chain-tile">
+          <img class="bg" src="assets/partners/somnia.jpg" alt="">
+          <div class="veil"></div>
+          <div class="copy">
+            <p class="tag">SUPPORTED CHAIN</p>
+            <h3>SOMNIA</h3>
+            <p>High-performance L1 for seamless, scalable gameplay.</p>
           </div>
-        </div>
-        
-        <!-- FlipSuite -->
-        <div class="dungeon-frame overflow-hidden game-card group">
-          <div class="bottom-corners"></div>
-          <div class="relative">
-            <img src="assets/partners/flipsuite.jpg" class="w-full h-40 object-cover" alt="FlipSuite">
-            <!-- transparent dark effect from bottom to top -->
-            <div class="absolute inset-0 bg-gradient-to-t from-[#0c0a08] via-[#0c0a08]/75 to-transparent"></div>
+        </article>
+        <article class="dungeon-frame chain-tile">
+          <img class="bg" src="assets/partners/megaeth.jpg" alt="">
+          <div class="veil"></div>
+          <div class="copy">
+            <p class="tag">SUPPORTED CHAIN</p>
+            <h3>MEGAETH</h3>
+            <p>True real-time execution for dynamic game worlds.</p>
           </div>
-          <div class="p-6">
-            <div class="pixel-font text-2xl mb-1">FLIPSUITE</div>
-            <div class="text-xs text-[#c5a46d] tracking-[2px] mb-3">ECOSYSTEM INFRASTRUCTURE</div>
-            <div class="text-sm text-[#a8a29e]">Key infrastructure supporting immersive on-chain gaming experiences.</div>
+        </article>
+        <article class="dungeon-frame chain-tile span-rest">
+          <img class="bg" src="assets/partners/x1-ecochain.jpg" alt="">
+          <div class="veil"></div>
+          <div class="copy">
+            <p class="tag">SUPPORTED CHAIN</p>
+            <h3>X1 ECOCHAIN</h3>
+            <p>First decentralized, energy-efficient, environmentally friendly blockchain.</p>
           </div>
-        </div>
-        
-        <!-- MegaETH -->
-        <div class="dungeon-frame overflow-hidden game-card group">
-          <div class="bottom-corners"></div>
-          <div class="relative">
-            <img src="assets/partners/megaeth.jpg" class="w-full h-40 object-cover" alt="MegaETH Ecosystem">
-            <!-- transparent dark effect from bottom to top -->
-            <div class="absolute inset-0 bg-gradient-to-t from-[#0c0a08] via-[#0c0a08]/75 to-transparent"></div>
-          </div>
-          <div class="p-6">
-            <div class="pixel-font text-2xl mb-1">MEGAETH ECOSYSTEM</div>
-            <div class="text-xs text-[#c5a46d] tracking-[2px] mb-3">REAL-TIME EXECUTION</div>
-            <div class="text-sm text-[#a8a29e]">Bringing true real-time blockchain performance to dynamic game worlds.</div>
-          </div>
-        </div>
-        
-        <!-- X1 -->
-        <div class="dungeon-frame overflow-hidden game-card group">
-          <div class="bottom-corners"></div>
-          <div class="relative">
-            <img src="assets/partners/x1-ecochain.jpg" class="w-full h-40 object-cover" alt="X1 ECOCHAIN">
-            <!-- transparent dark effect from bottom to top -->
-            <div class="absolute inset-0 bg-gradient-to-t from-[#0c0a08] via-[#0c0a08]/75 to-transparent"></div>
-          </div>
-          <div class="p-6">
-            <div class="pixel-font text-2xl mb-1">X1 ECOCHAIN</div>
-            <div class="text-xs text-[#c5a46d] tracking-[2px] mb-3">Vision Is Clear. Future Is Green.</div>
-            <div class="text-sm text-[#a8a29e]">first decentralized, energy-efficient, and environmentally friendly blockchain</div>
-          </div>
-        </div>
+        </article>
+      </div>
 
+      <p class="eco-kicker">PARTNERS</p>
+      <div class="partner-grid">
+        <article class="dungeon-frame partner-card game-card">
+          <div class="art">
+            <img src="assets/partners/gaminggrid-banner.jpg" alt="GamingGrid">
+            <div class="veil"></div>
+          </div>
+          <div class="p-6">
+            <div class="text-xs text-[#c5a46d] tracking-[2px] mb-2">PARTNER</div>
+            <div class="pixel-font text-3xl mb-2">GAMING GRID</div>
+            <div class="text-[#a8a29e]">No.1 Asia gaming guild — a home to Web3 gamers. Official Insomnus partner for game nights and community runs.</div>
+          </div>
+        </article>
+        <article class="dungeon-frame partner-card game-card">
+          <div class="art">
+            <img src="assets/partners/gate-banner.jpg" alt="Gate Labs">
+            <div class="veil"></div>
+          </div>
+          <div class="p-6">
+            <div class="text-xs text-[#c5a46d] tracking-[2px] mb-2">PARTNER</div>
+            <div class="pixel-font text-3xl mb-2">GATE LABS</div>
+            <div class="text-[#a8a29e]">Investment and listing arm of Gate — 13+ years, 58M+ users, bridging crypto and the next wave of on-chain games.</div>
+          </div>
+        </article>
+        <article class="dungeon-frame partner-card game-card">
+          <div class="art">
+            <img src="assets/partners/flipsuite.jpg" alt="FlipSuite">
+            <div class="veil"></div>
+          </div>
+          <div class="p-6">
+            <div class="text-xs text-[#c5a46d] tracking-[2px] mb-2">PARTNER</div>
+            <div class="pixel-font text-3xl mb-2">FLIPSUITE</div>
+            <div class="text-[#a8a29e]">Key infrastructure supporting immersive on-chain gaming experiences.</div>
+          </div>
+        </article>
+      </div>
+
+      <div class="dungeon-frame soon-rail">
+        <p class="k">COMING SOON</p>
+        <div class="soon-grid">
+          <div class="soon-item">
+            <div class="mark"><img src="assets/partners/animoca.png" alt=""></div>
+            <div class="nm">ANIMOCA BRANDS</div>
+            <p class="tx">Build, invest, and accelerate the ecosystems that turn players into stakeholders.</p>
+          </div>
+          <div class="soon-item">
+            <div class="mark"><img src="assets/partners/abstract.jpg" alt=""></div>
+            <div class="nm">ABSTRACT</div>
+            <p class="tx">Bringing the world’s economy onchain — consumer apps, finance, and digital assets.</p>
+          </div>
+          <div class="soon-item">
+            <div class="mark"><img src="assets/partners/ronin.jpg" alt=""></div>
+            <div class="nm">RONIN</div>
+            <p class="tx">Plug into the onchain Nintendo. Built for players.</p>
+          </div>
+          <div class="soon-item">
+            <div class="mark"><img src="assets/partners/arbitrum.jpg" alt=""></div>
+            <div class="nm">ARBITRUM</div>
+            <p class="tx">Powering the programmable economy.</p>
+          </div>
+          <div class="soon-item more">AND MORE</div>
+        </div>
       </div>
 
     </div>
@@ -1008,7 +1161,6 @@
         
         <!-- FAQ Item 1 -->
         <details class="dungeon-frame faq-item">
-          <div class="bottom-corners"></div>
           <summary class="faq-question w-full px-6 py-5 text-left hover:bg-[#14120f] transition-colors cursor-pointer list-none">
             <span class="pixel-font text-lg tracking-wide">What is my goal in this game?</span>
           </summary>
@@ -1021,7 +1173,6 @@
         
         <!-- FAQ Item 2 -->
         <details class="dungeon-frame faq-item">
-          <div class="bottom-corners"></div>
           <summary class="faq-question w-full px-6 py-5 text-left hover:bg-[#14120f] transition-colors cursor-pointer list-none">
             <span class="pixel-font text-lg tracking-wide">What resets after each session?</span>
           </summary>
@@ -1034,7 +1185,6 @@
         
         <!-- FAQ Item 3 -->
         <details class="dungeon-frame faq-item">
-          <div class="bottom-corners"></div>
           <summary class="faq-question w-full px-6 py-5 text-left hover:bg-[#14120f] transition-colors cursor-pointer list-none">
             <span class="pixel-font text-lg tracking-wide">How do my NFTs affect gameplay?</span>
           </summary>
@@ -1047,7 +1197,6 @@
         
         <!-- FAQ Item 4 -->
         <details class="dungeon-frame faq-item">
-          <div class="bottom-corners"></div>
           <summary class="faq-question w-full px-6 py-5 text-left hover:bg-[#14120f] transition-colors cursor-pointer list-none">
             <span class="pixel-font text-lg tracking-wide">What is the Points system?</span>
           </summary>
@@ -1060,7 +1209,6 @@
         
         <!-- New FAQ Item 5 -->
         <details class="dungeon-frame faq-item">
-          <div class="bottom-corners"></div>
           <summary class="faq-question w-full px-6 py-5 text-left hover:bg-[#14120f] transition-colors cursor-pointer list-none">
             <span class="pixel-font text-lg tracking-wide">Is the game free to play?</span>
           </summary>
@@ -1073,7 +1221,6 @@
         
         <!-- New FAQ Item 6 -->
         <details class="dungeon-frame faq-item">
-          <div class="bottom-corners"></div>
           <summary class="faq-question w-full px-6 py-5 text-left hover:bg-[#14120f] transition-colors cursor-pointer list-none">
             <span class="pixel-font text-lg tracking-wide">What is permadeath?</span>
           </summary>
@@ -1086,7 +1233,6 @@
         
         <!-- New FAQ Item 7 -->
         <details class="dungeon-frame faq-item">
-          <div class="bottom-corners"></div>
           <summary class="faq-question w-full px-6 py-5 text-left hover:bg-[#14120f] transition-colors cursor-pointer list-none">
             <span class="pixel-font text-lg tracking-wide">How do orbs work?</span>
           </summary>
@@ -1099,7 +1245,6 @@
         
         <!-- New FAQ Item 8 -->
         <details class="dungeon-frame faq-item">
-          <div class="bottom-corners"></div>
           <summary class="faq-question w-full px-6 py-5 text-left hover:bg-[#14120f] transition-colors cursor-pointer list-none">
             <span class="pixel-font text-lg tracking-wide">Can I play on mobile?</span>
           </summary>
@@ -1128,8 +1273,6 @@
 
     <div class="max-w-screen-2xl mx-auto px-8 pt-10 pb-8 relative z-20">
       <div class="dungeon-frame p-8">
-        <div class="bottom-corners"></div>
-        
         <div class="flex flex-col lg:flex-row gap-8 lg:gap-12 justify-between">
           
           <!-- Brand -->
@@ -1163,7 +1306,7 @@
             <div onclick="lightTheTorches()" class="inline-flex items-center gap-2 cursor-pointer text-xs hover:text-[#c02627] group">
               <span>THE DUNGEON WATCHES</span>
             </div>
-            <div class="mt-2 text-[10px] text-[#555]">BUILT ON SOMNIA &amp; MEGAETH</div>
+            <div class="mt-2 text-[10px] text-[#555]">BUILT ON SOMNIA &amp; ROBINHOOD AND MORE</div>
           </div>
           
         </div>

@@ -2902,7 +2902,7 @@
                     </div>
                     <button type="button" id="open-review" class="bind-btn">MINT</button>
                   </div>
-                  <p class="mt-3 text-[12px] text-gray-500">Free rounds: 1 pet total. Guaranteed: 3 of each. Petlist: 10 of each. Price TBA.</p>
+                  <p class="mt-3 text-[12px] text-gray-500">Free rounds: 1x. Guaranteed: 9. Petlist: 30. Random from the three. Price TBA.</p>
                 </div>
               </article>
 
@@ -2969,22 +2969,22 @@
                     <article class="phase on">
                       <p class="n">01 · FREE</p>
                       <h4>Ancient One</h4>
-                      <p>Discord Ancient One. One free pet. Not one of each — pick Gloop, Demon Dog, or Heal Bot.</p>
+                      <p>Discord Ancient One. One free pet. Random from the three.</p>
                     </article>
                     <article class="phase">
                       <p class="n">02 · FREE</p>
                       <h4>Guaranteed free</h4>
-                      <p>Guaranteed free-claim list. Same rule: one free pet from the three. Not three free pets.</p>
+                      <p>Guaranteed free-claim list. One free pet. Random from the three.</p>
                     </article>
                     <article class="phase">
                       <p class="n">03 · GTD</p>
                       <h4>Guaranteed</h4>
-                      <p>Cheapest paid round. 3 of each pet — 3 Gloop, 3 Demon Dog, 3 Heal Bot.</p>
+                      <p>Cheapest paid round. 9 pets, assigned at random from the three.</p>
                     </article>
                     <article class="phase">
                       <p class="n">04 · LIST</p>
                       <h4>Petlist</h4>
-                      <p>Petlisted wallets. 10 of each pet — 10 Gloop, 10 Demon Dog, 10 Heal Bot.</p>
+                      <p>Petlisted wallets. 30 pets, assigned at random from the three.</p>
                     </article>
                   </div>
                 </div>
@@ -3146,13 +3146,13 @@
                       <h4>GTD free</h4>
                     </div>
                     <div class="wl-count wl-gate" data-gate="gtd">
-                      <span class="amt">3</span>
-                      <p class="n">EACH PET</p>
+                      <span class="amt">9</span>
+                      <p class="n">RANDOM</p>
                       <h4>Guaranteed</h4>
                     </div>
                     <div class="wl-count wl-gate" data-gate="petlist">
-                      <span class="amt">10</span>
-                      <p class="n">EACH PET</p>
+                      <span class="amt">30</span>
+                      <p class="n">RANDOM</p>
                       <h4>Petlist</h4>
                     </div>
                   </div>
@@ -3838,8 +3838,8 @@
     const WL_PHASES = {
       ancient: { id: 'ancient', title: 'Ancient One', body: 'One free pet. Pick one of the three.' },
       freegtd: { id: 'freegtd', title: 'GTD free', body: 'One free pet from the three.' },
-      gtd: { id: 'gtd', title: 'Guaranteed', body: '3 of each pet.' },
-      petlist: { id: 'petlist', title: 'Petlist', body: '10 of each pet.' }
+      gtd: { id: 'gtd', title: 'Guaranteed', body: '9 pets, random from the three.' },
+      petlist: { id: 'petlist', title: 'Petlist', body: '30 pets, random from the three.' }
     };
     const WL_DEMO = [
       { id: 'ancient', keys: ['ancient', 'ancientone'] },
@@ -3854,7 +3854,8 @@
     // Apps Script web app URL from tools/petlist-apply.gs (Deploy → Web app → Anyone).
     const WL_APPLY_SCRIPT = 'https://script.google.com/macros/s/AKfycbz9ZOXVQFkEOAVIAxgDfO1ok3QCjIeWHtAuVIStLUquYoGccst_Zs9XZirk6IUZAgNB/exec';
     const sheetWl = new Map([
-      ['0xc4aef6a8bcbc75c3eaa9daa10008ae9b3bfa6a05d', 'petlist']
+      ['0xc4aef6a8bcbc75c3eaa9daa10008ae9b3bfa6a05d', 'petlist'],
+      ['0x2b0048acf0d030abd5556aedc56c411927851985', 'gtd']
     ]);
 
     function phaseFromLabel(raw) {
